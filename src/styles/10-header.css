@@ -1,0 +1,24 @@
+/* sample strip + header */
+.strip{background:#150f1f;color:var(--sample);font-size:.78rem;border-bottom:1px solid #2a2040;padding-block:6px}
+.strip .in{display:flex;gap:8px;align-items:center}
+header.top{background:var(--bg2);border-bottom:1px solid var(--line2);position:sticky;top:env(safe-area-inset-top,0px);z-index:50}
+.bar-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-block:10px}
+.brand{display:flex;flex-direction:column;line-height:1.1;text-decoration:none;color:var(--fg)}
+.brand b{font-family:var(--font-display);font-size:1.4rem;letter-spacing:.2px;direction:ltr;text-align:start}
+.brand b i{font-style:normal;color:var(--accent);text-shadow:0 0 14px rgba(255,45,75,.7)}
+.brand span{font-size:.64rem;color:var(--muted);direction:ltr;letter-spacing:.3px}
+.hdr-actions{display:flex;gap:8px;align-items:center}
+.cartbtn{position:relative;display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;border:1px solid var(--line2);border-radius:10px;color:var(--fg);background:var(--surface2);text-decoration:none}
+.cartbtn:hover{border-color:var(--accent);color:var(--accent)}
+.cartbtn svg{width:22px;height:22px}
+.badge-n{position:absolute;top:-6px;inset-inline-end:-6px;min-width:20px;height:20px;padding:0 5px;border-radius:10px;background:var(--accent);color:var(--accent-ink);font-size:.72rem;font-weight:700;display:flex;align-items:center;justify-content:center;box-shadow:var(--glow)}
+.badge-n:empty{display:none}
+.nav{display:none}
+@media(min-width:820px){
+  .nav{display:flex;gap:4px;overflow-x:auto;padding-bottom:10px;scrollbar-width:none}
+  .nav::-webkit-scrollbar{display:none}
+  .nav a{white-space:nowrap;text-decoration:none;color:var(--muted);font-size:.9rem;padding:7px 13px;border-radius:8px;border:1px solid transparent}
+  .nav a:hover{color:var(--fg);border-color:var(--line2)}
+  .nav a[aria-current=page]{color:var(--accent);border-color:var(--accent);background:var(--accent-soft);box-shadow:var(--glow);font-weight:600}
+}
+

@@ -1,0 +1,30 @@
+/* bottom nav (phones) */
+.bnav{position:fixed;left:0;right:0;bottom:0;z-index:55;background:#050507;border-top:1px solid var(--line2);padding-bottom:env(safe-area-inset-bottom,0px)}
+.bnav .in{display:grid;grid-template-columns:repeat(5,1fr);gap:2px;padding-block:4px}
+.bnav a,.bnav button{appearance:none;background:none;border:0;font:inherit;color:var(--muted);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-height:54px;font-size:.7rem;text-decoration:none;cursor:pointer;position:relative;border-radius:8px}
+.bnav svg{width:22px;height:22px}
+.bnav [aria-current=page]{color:var(--accent);text-shadow:0 0 12px rgba(255,45,75,.8)}
+.bnav [aria-current=page]::after{content:"";position:absolute;top:0;width:28px;height:3px;border-radius:0 0 3px 3px;background:var(--accent);box-shadow:var(--glow)}
+.bnav .badge-n{top:2px;inset-inline-end:calc(50% - 22px)}
+@media(min-width:820px){.bnav{display:none}}
+
+main{flex:1;padding-block:22px calc(var(--navh) + env(safe-area-inset-bottom,0px) + 36px)}
+main.has-bar{padding-bottom:calc(var(--navh) + env(safe-area-inset-bottom,0px) + 140px)}
+.stack{display:flex;flex-direction:column;gap:18px}
+.stack-s{display:flex;flex-direction:column;gap:10px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.row.between{justify-content:space-between}
+.grid{display:grid;gap:12px;grid-template-columns:1fr}
+@media(min-width:700px){.grid.c2{grid-template-columns:1fr 1fr}.grid.c3{grid-template-columns:repeat(3,1fr)}}
+@media(min-width:960px){.grid.c4{grid-template-columns:repeat(4,1fr)}}
+.grid>*{min-width:0}
+
+.card{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:16px}
+.card h3+p,.card h2+p{margin-top:6px}
+.hero{padding-block:8px 6px}
+.hero p.lead{color:var(--muted);max-width:60ch;margin-top:10px;font-size:1.02rem}
+.kicker{font-family:var(--font-mono);font-size:.74rem;color:var(--accent);letter-spacing:.8px;direction:ltr;text-align:start;text-shadow:0 0 10px rgba(255,45,75,.6)}
+.searchbox{display:flex;gap:8px}
+.searchbox input{flex:1;min-width:0;min-height:52px;font-size:1.05rem;border-color:var(--line2)}
+.searchbox input:focus{border-color:var(--accent);box-shadow:var(--glow);outline:0}
+

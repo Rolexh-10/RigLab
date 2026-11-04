@@ -1,0 +1,11 @@
+/* badges / tags (errors are FILLED so they never get confused with the red accent) */
+.badge{display:inline-flex;align-items:center;gap:6px;font-size:.78rem;font-weight:600;padding:3px 10px;border-radius:999px;border:1px solid currentColor;white-space:nowrap}
+.badge::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor}
+.b-ok{color:var(--ok)}.b-warn{color:var(--warn)}.b-unknown{color:var(--unk)}.b-empty,.b-pending,.b-info{color:var(--muted)}
+.b-error{background:var(--err);border-color:var(--err);color:#16000a}
+.b-error::before{content:"✕";width:auto;height:auto;background:none;font-size:.7rem}
+.tag{font-size:.7rem;padding:1px 8px;border-radius:4px;border:1px solid var(--line2);color:var(--muted);white-space:nowrap}
+.tag.sample{color:var(--sample);border-color:#4a3a78;background:#1a1330}
+.tag.sp{color:var(--warn);border-color:#6b5420}
+.tag.best{color:var(--ok);border-color:#1d6b52;background:#07201a}
+

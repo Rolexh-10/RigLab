@@ -12,7 +12,7 @@ function loadPlaywright() {
   throw new Error('playwright not found: npm i -D playwright');
 }
 const { chromium } = loadPlaywright();
-const FILE = 'file://' + path.join(__dirname, '../dist/riglab.html');
+const FILE = 'file://' + path.join(__dirname, '../../dist/riglab.html');
 const SHOTS = process.env.SHOTS_DIR;
 
 let browser;

@@ -1,0 +1,54 @@
+/* ===== v3: alien-neon HUD layer ===== */
+:root{--alien:#7dff8a;--font-logo:'Orbitron','Rubik',system-ui,sans-serif}
+#rl{position:relative;z-index:1}
+body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;background:repeating-linear-gradient(0deg,rgba(255,255,255,.022) 0 1px,transparent 1px 3px);mix-blend-mode:screen}
+header.top{position:relative;top:auto;background:var(--bg);border-bottom:0}
+.banner{position:relative;overflow:hidden;border-bottom:1px solid var(--line2);height:112px;--px:0;--py:0;isolation:isolate}
+@media(min-width:820px){.banner{height:150px}}
+.scene{position:absolute;inset:0;width:100%;height:100%;z-index:-2}
+.scrim{position:absolute;inset:0;z-index:-1;background:linear-gradient(90deg,rgba(5,5,7,.88),rgba(5,5,7,.35) 55%,rgba(5,5,7,.2));pointer-events:none}
+[dir=rtl] .scrim{background:linear-gradient(270deg,rgba(5,5,7,.88),rgba(5,5,7,.35) 55%,rgba(5,5,7,.2))}
+.banner::after{content:"";position:absolute;inset-inline:0;bottom:0;height:2px;background:linear-gradient(90deg,transparent,var(--accent),var(--alien),var(--accent),transparent);background-size:200% 100%;animation:sweep 6s linear infinite;box-shadow:0 0 14px var(--accent)}
+.banner-in{height:100%;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.ly{transition:transform .25s ease-out}
+.l1{transform:translate(calc(var(--px)*-6px),calc(var(--py)*-3px))}
+.l2{transform:translate(calc(var(--px)*-14px),calc(var(--py)*-7px))}
+.l3{transform:translate(calc(var(--px)*-24px),calc(var(--py)*-12px))}
+.tr{stroke-dasharray:7 9;animation:flow 2.4s linear infinite}
+.tr.d2{animation-duration:3.4s}.tr.d3{animation-duration:4.4s;animation-direction:reverse}
+.spin{animation:spin 2.2s linear infinite}
+.led{animation:blink 2.6s ease-in-out infinite}.led.d2{animation-delay:.9s}.led.d3{animation-delay:1.7s}
+.scene .spin{transform-box:fill-box;transform-origin:center}
+.brand{position:relative;line-height:1}
+.brand .logo{font-family:var(--font-logo);font-weight:900;font-size:clamp(2rem,9vw,3.2rem);letter-spacing:1px;position:relative;color:#fff;text-shadow:0 0 18px rgba(255,45,75,.55);animation:flicker 7s infinite}
+.brand .logo i{color:var(--accent);text-shadow:0 0 12px var(--accent),0 0 32px rgba(255,45,75,.75)}
+.brand .logo::before,.brand .logo::after{content:attr(data-text);position:absolute;inset:0;opacity:0;pointer-events:none}
+.brand .logo::before{color:var(--alien);animation:glitch1 6s infinite}
+.brand .logo::after{color:var(--accent);animation:glitch2 6s infinite}
+.brand span{margin-top:6px;font-family:var(--font-mono);font-size:.62rem;letter-spacing:1.6px;color:var(--soft);display:flex;align-items:center;gap:6px;text-transform:uppercase}
+.brand span::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--alien);box-shadow:0 0 10px var(--alien);animation:blink 2s ease-in-out infinite}
+.navwrap{background:var(--bg2);border-bottom:1px solid var(--line2)}
+@media(min-width:820px){.navwrap{position:sticky;top:env(safe-area-inset-top,0px);z-index:50;backdrop-filter:blur(8px);background:rgba(10,10,14,.92)}.nav{padding-block:8px}}
+.nav a{position:relative;overflow:hidden}
+.nav a[aria-current=page]::after{content:"";position:absolute;inset-inline:10%;bottom:0;height:2px;background:var(--accent);box-shadow:0 0 10px var(--accent)}
+.kicker::before{content:"";display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--alien);box-shadow:0 0 10px var(--alien);margin-inline-end:8px;animation:blink 2s ease-in-out infinite}
+h1{font-family:var(--font-display);text-shadow:0 0 24px rgba(255,45,75,.25)}
+/* cards: HUD corners + cursor spotlight */
+.card,.slot,.opt,.ad{position:relative;overflow:hidden;transition:border-color .2s,box-shadow .2s,transform .2s}
+.card::before,.slot::before{content:"";position:absolute;inset:0;pointer-events:none;background:
+ linear-gradient(var(--accent),var(--accent)) 0 0/12px 1px no-repeat,linear-gradient(var(--accent),var(--accent)) 0 0/1px 12px no-repeat,
+ linear-gradient(var(--accent),var(--accent)) 100% 0/12px 1px no-repeat,linear-gradient(var(--accent),var(--accent)) 100% 0/1px 12px no-repeat,
+ linear-gradient(var(--accent),var(--accent)) 0 100%/12px 1px no-repeat,linear-gradient(var(--accent),var(--accent)) 0 100%/1px 12px no-repeat,
+ linear-gradient(var(--accent),var(--accent)) 100% 100%/12px 1px no-repeat,linear-gradient(var(--accent),var(--accent)) 100% 100%/1px 12px no-repeat;opacity:.55}
+.card::after,.slot::after,.opt::after,.ad::after{content:"";position:absolute;inset:0;pointer-events:none;opacity:0;transition:opacity .25s;background:radial-gradient(240px circle at var(--mx,50%) var(--my,50%),rgba(255,45,75,.16),transparent 70%)}
+.card:hover::after,.slot:hover::after,.opt:hover::after,.ad:hover::after{opacity:1}
+.card:hover,.slot:hover{border-color:var(--line2)}
+.toolcard:hover{transform:translateY(-3px)}
+.slot:hover{transform:translateY(-2px)}
+.btn{position:relative;overflow:hidden}
+.btn.pri::after{content:"";position:absolute;inset:0;background:linear-gradient(110deg,transparent 30%,rgba(255,255,255,.35) 50%,transparent 70%);transform:translateX(-120%)}
+.btn.pri:hover::after{transform:translateX(120%);transition:transform .6s}
+.btn:active{transform:scale(.97)}
+.chip{transition:background .2s,border-color .2s,color .2s,box-shadow .2s}
+.chip[aria-pressed=true],.chip.on{box-shadow:0 0 12px rgba(255,45,75,.35)}
+.searchbox input{background:rgba(255,45,75,.04)}

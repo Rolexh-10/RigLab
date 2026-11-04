@@ -7,7 +7,9 @@
 
 ## تشغيل
 ```
-node scripts/build.js          # dist/riglab.html و dist/riglab.artifact.html
-node scripts/serve.js          # معاينة محلية
-node --test tests/engine.test.js tests/ui-smoke.test.js   # 37 اختباراً (الواجهة تحتاج Playwright + Chrome)
+npm run build        # dist/riglab.html و dist/riglab.artifact.html  (لا حاجة لـ npm install للبناء)
+npm run serve        # معاينة محلية
+npm run test:unit    # اختبارات المنطق (Node فقط، بدون متصفح)
+npm run test:ui      # يبني ثم يشغل اختبارات الواجهة (تحتاج Playwright + Chrome)
 ```
+الهيكل والقرارات: `docs/ARCHITECTURE.md`.

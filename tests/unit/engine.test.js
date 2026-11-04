@@ -1,8 +1,8 @@
 'use strict';
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const C = require('../src/engine.js');
-const D = require('../src/data.js');
+const C = require('../../src/core');
+const D = require('../../src/data');
 
 const GOOD = { cpu: 'r5-7600', mobo: 'b650m', ram: 'ddr5-16-5600', gpu: 'rtx4060', storage: 'nvme-1tb', psu: 'psu-650', case: 'case-atx-mid' };
 const check = (b, tweak) => {

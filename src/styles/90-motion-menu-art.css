@@ -1,0 +1,50 @@
+/* page entrance */
+#app.enter .stack>*,#app.enter>.stack-s>*{animation:rise .5s cubic-bezier(.2,.7,.2,1) both}
+#app.enter .stack>*:nth-child(2){animation-delay:.05s}#app.enter .stack>*:nth-child(3){animation-delay:.1s}#app.enter .stack>*:nth-child(4){animation-delay:.15s}#app.enter .stack>*:nth-child(5){animation-delay:.2s}#app.enter .stack>*:nth-child(n+6){animation-delay:.25s}
+#toast{animation:pop .25s cubic-bezier(.2,.9,.3,1.2)}
+.ad{border-style:solid;border-color:#4a3a14;background:linear-gradient(135deg,#140f04,#0a0a0f)}
+.ad.empty{border-style:dashed;border-color:var(--line2);background:var(--bg2)}
+.rig3d{box-shadow:0 0 0 1px rgba(255,45,75,.25),0 0 30px rgba(255,45,75,.12) inset}
+@keyframes flow{to{stroke-dashoffset:-32}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.25}}
+@keyframes sweep{to{background-position:-200% 0}}
+@keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@keyframes pop{from{opacity:0;transform:translate(-50%,10px) scale(.9)}to{opacity:1;transform:translate(-50%,0) scale(1)}}
+@keyframes flicker{0%,18%,22%,62%,64%,100%{opacity:1}20%,63%{opacity:.82}}
+@keyframes glitch1{0%,91%,100%{opacity:0;transform:none}92%{opacity:.85;transform:translate(-3px,1px);clip-path:inset(10% 0 55% 0)}94%{opacity:.85;transform:translate(3px,-1px);clip-path:inset(60% 0 8% 0)}96%{opacity:0}}
+@keyframes glitch2{0%,92%,100%{opacity:0;transform:none}93%{opacity:.8;transform:translate(3px,0);clip-path:inset(40% 0 30% 0)}95%{opacity:.8;transform:translate(-3px,1px);clip-path:inset(5% 0 70% 0)}97%{opacity:0}}
+@media(max-width:560px){.brand span{font-size:.5rem;letter-spacing:.8px;white-space:nowrap}.brand .logo{font-size:2.1rem}}
+
+.wishbtn.on{color:var(--accent);border-color:var(--accent);box-shadow:0 0 12px rgba(255,45,75,.35)}
+
+/* menu cards with neon line-art that hints at each section */
+.toolcard.art{position:relative;overflow:hidden;min-height:112px;isolation:isolate;background:
+  radial-gradient(120% 140% at 0% 50%,color-mix(in srgb,var(--tc,#ff2d4b) 22%,transparent),transparent 62%),
+  linear-gradient(180deg,var(--card,#0d0d13),var(--card,#0d0d13))}
+.toolcard.art::after{content:"";position:absolute;inset:0;z-index:-1;opacity:.5;
+  background-image:linear-gradient(color-mix(in srgb,var(--tc) 12%,transparent) 1px,transparent 1px),linear-gradient(90deg,color-mix(in srgb,var(--tc) 12%,transparent) 1px,transparent 1px);
+  background-size:18px 18px;-webkit-mask-image:linear-gradient(90deg,#000,transparent 70%);mask-image:linear-gradient(90deg,#000,transparent 70%)}
+.toolcard.art .tart{position:absolute;inset-inline-end:8px;top:50%;width:40%;max-width:170px;transform:translateY(-50%);color:var(--tc);opacity:.8;z-index:-1;filter:drop-shadow(0 0 6px var(--tc)) drop-shadow(0 0 14px color-mix(in srgb,var(--tc) 55%,transparent));transition:opacity .2s,transform .3s}
+.toolcard.art:hover .tart{opacity:1;transform:translateY(-50%) scale(1.06)}
+.toolcard.art h3,.toolcard.art p{max-width:58%}
+.toolcard.art h3{color:#fff;text-shadow:0 0 12px color-mix(in srgb,var(--tc) 60%,transparent)}
+.toolcard.art:hover{border-color:var(--tc);box-shadow:0 0 22px color-mix(in srgb,var(--tc) 30%,transparent)}
+@media(max-width:380px){.toolcard.art h3,.toolcard.art p{max-width:62%}}
+
+.scene{display:block}
+/* 'More' menu rows share the same neon art as the home cards */
+.morelist a.art{position:relative;overflow:hidden;isolation:isolate;min-height:68px;padding-inline-end:56px;background:
+  radial-gradient(120% 220% at 0% 50%,color-mix(in srgb,var(--tc,#ff2d4b) 22%,transparent),transparent 62%),var(--surface)}
+.morelist a.art::after{content:"";position:absolute;inset:0;z-index:-1;opacity:.45;background-image:linear-gradient(color-mix(in srgb,var(--tc) 12%,transparent) 1px,transparent 1px),linear-gradient(90deg,color-mix(in srgb,var(--tc) 12%,transparent) 1px,transparent 1px);background-size:16px 16px;-webkit-mask-image:linear-gradient(90deg,#000,transparent 70%);mask-image:linear-gradient(90deg,#000,transparent 70%)}
+.morelist a.art .tart{position:absolute;inset-inline-end:40px;top:50%;width:34%;max-width:140px;height:auto;transform:translateY(-50%);color:var(--tc);opacity:.8;z-index:-1;filter:drop-shadow(0 0 6px var(--tc))}
+.morelist a.art span:first-of-type{color:#fff;font-weight:600;text-shadow:0 0 12px color-mix(in srgb,var(--tc) 60%,transparent)}
+.morelist a.art:hover{border-color:var(--tc);color:#fff}
+
+.scene .fxl{position:absolute;inset:0}
+.scene .fxl canvas{display:block;width:100%;height:100%}
+.sheet .list>*{flex-shrink:0}
+
+.tag.t3d{color:#ff2d4b;border-color:#ff2d4b;font-weight:700}
+
+.rig3d{background:radial-gradient(70% 70% at 50% 40%,#23262e,#0b0c10)!important;box-shadow:none!important}
