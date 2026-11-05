@@ -46,5 +46,7 @@
 .sheet .list>*{flex-shrink:0}
 
 .tag.t3d{color:#ff2d4b;border-color:#ff2d4b;font-weight:700}
+.tag.t3d.sim{color:#ffb224;border-color:#ffb224}
+.tag.t3d.no{color:var(--mut,#8a8f9c);border-color:var(--mut,#8a8f9c);font-weight:400;opacity:.8}
 
 .rig3d{background:radial-gradient(70% 70% at 50% 40%,#23262e,#0b0c10)!important;box-shadow:none!important}

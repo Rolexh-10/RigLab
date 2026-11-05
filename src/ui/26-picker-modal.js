@@ -14,7 +14,14 @@
   function openPicker(cat, target) { S.sheet = null; S.picker = { cat: cat, target: target, q: '', sort: 'price-asc', hide: false }; renderModal(); }
   function has3d(cat, x) {
     var R = window.RIGLAB_MODELS || {}, c = cat === 'storage' ? 'ssd' : cat;
-    return !!(window.RigLabIdentity && window.RigLabIdentity.resolve(R, c, x));
+    var r = window.RigLabIdentity && window.RigLabIdentity.resolve(R, c, x); return r ? r.level : '';
+  }
+  // 3D badge for each option: exact model / look-alike model / no model (neutral placeholder)
+  function tag3d(cat, x) {
+    var l = has3d(cat, x);
+    if (l === 'exact') return ' <span class="tag t3d">' + L('موديل 3D', '3D model') + '</span>';
+    if (l) return ' <span class="tag t3d sim">' + L('3D مشابه', '3D look-alike') + '</span>';
+    return ' <span class="tag t3d no">' + L('بدون 3D', 'No 3D') + '</span>';
   }
   function pickerList() {
     var p = S.picker, cur = bget(p.target)[p.cat];
@@ -32,7 +39,7 @@
       shown++;
       var okc = !f.errs.length && !f.warns.length && Object.keys(bget(p.target)).filter(function (k) { return k !== p.cat && bget(p.target)[k]; }).length > 0;
       var flag = okc ? '<span class="badge b-ok">✔ ' + L('يركب مع اختيارك', 'Fits your picks') + '</span>' : f.errs.length ? sb('error') + ' <span class="small muted">' + T(f.errs[0].title) + '</span>' : (f.warns.length ? sb('warn') + ' <span class="small muted">' + T(f.warns[0].title) + '</span>' : '');
-      html += '<button class="opt' + (cur === x.id ? ' cur' : '') + '" data-act="choose" data-id="' + x.id + '"><div class="b"><div class="nm">' + esc(pname(x)) + (x.generic ? ' <span class="tag">' + L('فئة نموذجية', 'generic class') + '</span>' : '') + (has3d(p.cat, x) ? ' <span class="tag t3d">3D</span>' : '') + '</div><div class="small muted mono">' + C.shortSpec(x) + '</div>' + (flag ? '<div class="row" style="margin-top:4px">' + flag + '</div>' : '') + '</div><div class="pr">' + fmt(C.priceOf(x)) + '<br><span class="small muted">' + unit() + '</span></div></button>';
+      html += '<button class="opt' + (cur === x.id ? ' cur' : '') + '" data-act="choose" data-id="' + x.id + '"><div class="b"><div class="nm">' + esc(pname(x)) + (x.generic ? ' <span class="tag">' + L('فئة نموذجية', 'generic class') + '</span>' : '') + tag3d(p.cat, x) + '</div><div class="small muted mono">' + C.shortSpec(x) + '</div>' + (flag ? '<div class="row" style="margin-top:4px">' + flag + '</div>' : '') + '</div><div class="pr">' + fmt(C.priceOf(x)) + '<br><span class="small muted">' + unit() + '</span></div></button>';
     });
     return shown ? html : '<div class="note">' + L('لا نتائج مطابقة.', 'No matching results.') + '</div>';
   }
