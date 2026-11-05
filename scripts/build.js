@@ -22,7 +22,7 @@ const tpl = rd('src/index.template.html')
   .replace('/*__CSS__*/', () => cat('src/styles', '.css'))
   .replace('/*__DATA__*/', () => '')
   .replace('/*__ENGINE__*/', () => safe(buildEngine()))
-  .replace('/*__APP__*/', () => safe(rd('src/vendor/particles.js') + '\n' + models() + '\n' + buildApp() + '\n' + rd('src/render3d/viewer3d.js') + '\n' + rd('src/render3d/glview.js') + '\n' + cat('src/ui', '.js')));
+  .replace('/*__APP__*/', () => safe(rd('src/vendor/particles.js') + '\n' + models() + '\n' + buildApp() + '\n' + rd('src/render3d/viewer3d.js') + '\n' + rd('src/render3d/identity.js') + '\n' + rd('src/render3d/glview.js') + '\n' + cat('src/ui', '.js')));
 
 fs.mkdirSync(path.join(root, 'dist'), { recursive: true });
 fs.writeFileSync(path.join(root, 'dist/riglab.artifact.html'), tpl);

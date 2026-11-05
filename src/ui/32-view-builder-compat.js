@@ -5,6 +5,7 @@
     var legend = C.CATS.map(function (c) { return '<span class="lg"><i style="background:' + (CATCOL[c.key] || '#888') + '"></i>' + T(c) + '</span>'; }).join('');
     return '<section class="card stack-s"><div class="row between"><h2>' + L('تجميعتك بالـ 3D', 'Your build in 3D') + '</h2><div class="row"><button class="btn sm" data-act="rot3d" data-d="-0.5" aria-label="' + L('تدوير يميناً', 'Rotate right') + '">⟲</button><button class="btn sm" data-act="rot3d" data-d="0.5" aria-label="' + L('تدوير يساراً', 'Rotate left') + '">⟳</button><button class="btn sm" data-act="zoom3d" data-f="1.25" aria-label="' + L('تكبير', 'Zoom in') + '">＋</button><button class="btn sm" data-act="zoom3d" data-f="0.8" aria-label="' + L('تصغير', 'Zoom out') + '">－</button><button class="btn sm" data-act="auto3d" aria-label="' + L('دوران تلقائي', 'Auto-rotate') + '">▶</button></div></div>' +
       '<canvas id="rig3d" class="rig3d" role="img" aria-label="' + L('مجسم ثلاثي الأبعاد للتجميعة', '3D model of the build') + '"></canvas>' +
+      '<div id="rig3d-id" class="small muted" aria-live="polite"></div>' +
       '<div class="small muted">' + L('اسحب للتدوير · قرصة أو عجلة الماوس أو ＋ － للزوم · نقرتين للرجوع', 'Drag to rotate · pinch, wheel or ＋ － to zoom · double-tap to reset') + '</div><div class="legend">' + legend + '</div>' +
       (bad.length ? bad.map(function (k) { return '<div class="note warn">' + msg[k] + '</div>'; }).join('') : '') +
       '<p class="small muted">' + L('اسحب لتدوير الجهاز. الأبعاد من مواصفات الكتالوج (طول الكرت، ارتفاع المبرد، حجم الكيس)، والشكل العام تقريبي وليس موديلاً بعينه. الخطوط المتقطعة = قطعة لم تُختر بعد.', 'Drag to rotate. Sizes come from catalog specs (GPU length, cooler height, case size); the look is generic, not a specific model. Dashed outline = part not chosen yet.') + '</p></section>';
@@ -32,6 +33,17 @@
         '<div class="stack-s"><div class="muted small">' + L('أقل UPS مقترح', 'Minimum UPS') + '</div><div class="big" style="font-size:1.4rem">' + minVA + ' VA</div><div class="small muted">' + L('معامل قدرة 0.6 (تقدير)', 'power factor 0.6 (estimate)') + '</div></div></div>' : '<div class="note">' + L('أضف المعالج وكرت الشاشة لحساب الاستهلاك والأمبيرات.', 'Add a CPU and GPU to estimate draw and amps.') + '</div>') + heatNote(parts) + '</section>';
   }
 
+  // honest label for the 3D viewer: which parts are an exact model, a disclosed look-alike, or the neutral generic placeholder
+  var KEY_AR = { gpu: 'كرت الشاشة', cpu: 'المعالج', mobo: 'اللوحة الأم', ram: 'الرام', case: 'الكيس', cooler: 'المبرد' }, KEY_EN = { gpu: 'GPU', cpu: 'CPU', mobo: 'Motherboard', ram: 'RAM', case: 'Case', cooler: 'Cooler' };
+  function ident3d(gl) {
+    var el = $('rig3d-id'); if (!el || !gl.identity) return;
+    var rows = gl.identity().filter(function (r) { return r.level !== 'exact'; });
+    if (!rows.length) { el.textContent = ''; return; }
+    el.innerHTML = '<b>' + L('تمثيل 3D', '3D representation') + '</b>: ' + rows.map(function (r) {
+      var n = L(KEY_AR[r.key], KEY_EN[r.key]);
+      return r.level === 'generic' ? n + ' — ' + L('شكل عام (بدون موديل)', 'Generic 3D representation') : n + ' — ' + L('موديل مشابه: ', 'look-alike model: ') + esc(r.actual);
+    }).join(' · ');
+  }
   // Builder
   VIEWS.builder = {
     bind: function () {
@@ -39,7 +51,7 @@
       if (S.v3 && S.v3.destroy) { try { S.v3.destroy(); } catch (e) {} S.v3 = null; }
       var R3 = window.RigLab3D, parts = C.resolve(S.build), gl = null;
       try { gl = R3.createGL && !/[?&]flat3d/.test(location.search) ? R3.createGL(cv) : null; if (gl) gl.setParts(parts); } catch (e) { gl = null; }
-      if (gl) { S.v3 = gl; return; }
+      if (gl) { S.v3 = gl; ident3d(gl); return; }
       if (cv.dataset.gl) { var c2 = cv.cloneNode(false); c2.dataset.gl = ''; cv.parentNode.replaceChild(c2, cv); cv = c2; }
       try { S.v3 = R3.create(cv); S.v3.setParts(parts); } catch (e) { cv.style.display = 'none'; }
     },

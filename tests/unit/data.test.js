@@ -58,9 +58,9 @@ test('cross references: boards use a CPU socket + RAM type that exist; coolers s
 
 test('every part that the 3D manifest references exists in the catalog', () => {
   const man = require('../../models/manifest.json');
-  for (const [k, m] of Object.entries(man)) for (const id of m.ids || []) {
+  for (const [k, m] of Object.entries(man)) for (const id of Object.keys(m.products || {})) {
     const p = C.getPart(id);
     assert.ok(p, 'manifest ' + k + ' references unknown part ' + id);
-    assert.equal(p.cat === 'storage' ? 'ssd' : p.cat, m.cat, 'manifest ' + k + ' category for ' + id);
+    assert.equal(p.cat === 'storage' ? 'ssd' : p.cat, m.cat === 'coolerpump' ? 'cooler' : m.cat, 'manifest ' + k + ' category for ' + id);
   }
 });

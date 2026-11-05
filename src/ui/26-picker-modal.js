@@ -14,8 +14,7 @@
   function openPicker(cat, target) { S.sheet = null; S.picker = { cat: cat, target: target, q: '', sort: 'price-asc', hide: false }; renderModal(); }
   function has3d(cat, x) {
     var R = window.RIGLAB_MODELS || {}, c = cat === 'storage' ? 'ssd' : cat;
-    for (var k in R) { var m = R[k]; if (m.cat !== c) continue; if ((m.ids && m.ids.indexOf(x.id) >= 0) || m.def || (m.type && (x.type === m.type || x.ramType === m.type))) return true; }
-    return false;
+    return !!(window.RigLabIdentity && window.RigLabIdentity.resolve(R, c, x));
   }
   function pickerList() {
     var p = S.picker, cur = bget(p.target)[p.cat];

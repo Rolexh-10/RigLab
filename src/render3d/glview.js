@@ -195,13 +195,20 @@
     }
     var forced = {};
     function pickEntry(key, part) {
-      var reg = window.RIGLAB_MODELS || {}, best = null, bs = 0;
-      Object.keys(reg).forEach(function (id) {
-        var c = reg[id]; if (c.cat !== key) return; var sc = 0;
-        if (forced[key] === id) sc = 99; else if (c.ids && c.ids.indexOf(part.id) >= 0) sc = 3; else if (c.type && c.type === part.type) sc = 2; else if (c.def) sc = 1;
-        if (sc > bs) { bs = sc; best = id; }
+      var reg = window.RIGLAB_MODELS || {}, id = forced[key] || null; // forced = diagnostics/tests only
+      if (!id) { var r = window.RigLabIdentity && window.RigLabIdentity.resolve(reg, key, part); id = r ? r.id : null; }
+      var e = id && ensure(id); return e && e.state === 'ready' ? e : null;
+    }
+    // what the viewer is really showing for every part: exact | representative | generic (neutral placeholder)
+    var IDENT_KEYS = ['gpu', 'cpu', 'mobo', 'ram', 'case', 'cooler'];
+    function identity() {
+      var reg = window.RIGLAB_MODELS || {}, out = [];
+      (st.items || []).forEach(function (it) {
+        if (it.ghost || it.frame && it.key !== 'case' || !it.part || IDENT_KEYS.indexOf(it.key) < 0) return;
+        var r = window.RigLabIdentity && window.RigLabIdentity.resolve(reg, it.key, it.part), ok = r && (ensure(r.id) || {}).state === 'ready';
+        out.push({ key: it.key, id: it.part.id, level: ok ? r.level : 'generic', model: ok ? r.id : null, actual: ok ? (r.identity.manufacturer + ' ' + r.identity.product) : '', note: ok ? r.note : '' });
       });
-      var e = best && ensure(best); return e && e.state === 'ready' ? e : null;
+      return out;
     }
 
     var U = P.u;
@@ -389,7 +396,7 @@
       gl: true, setParts: function (p) { setParts(p); start(); }, state: st, models: models, draw: function () { draw(performance.now()); },
       rotate: function (d) { st.yaw += d; st.auto = false; invalidate(); }, zoomBy: function (f) { zset(st.zoom * f); },
       toggleAuto: function () { st.auto = !st.auto; invalidate(); return st.auto; },
-      force: function (cat, id) { forced[cat] = id; invalidate(); },
+      force: function (cat, id) { forced[cat] = id; invalidate(); }, identity: identity,
       // release the GL context: every builder re-render makes a new canvas, and unreleased contexts pile up GPU memory (phones then stall)
       destroy: function () { dead = true; if (st.raf) cancelAnimationFrame(st.raf); st.raf = 0; try { var x = gl.getExtension('WEBGL_lose_context'); if (x) x.loseContext(); } catch (e) {} },
       // diagnostics: the linear part (3 columns = images of model axes) and its determinant (< 0 means the model is drawn mirrored)
