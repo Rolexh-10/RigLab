@@ -165,26 +165,6 @@
    1
   ]
  },
- "cpu-3600": {
-  "file": "glb/cpu-3600.glb",
-  "cat": "cpu",
-  "license": "CC-BY-4.0",
-  "author": "Fochdog (https://sketchfab.com/bazyaev08)",
-  "title": "CPU Ryzen 5 3600",
-  "source": "https://sketchfab.com/3d-models/cpu-ryzen-5-3600",
-  "ids": [
-   "r5-5600",
-   "r7-5700x",
-   "r5-3600",
-   "i7-10700k",
-   "i7-6700k"
-  ],
-  "flip": [
-   -1,
-   1,
-   1
-  ]
- },
  "cpu-7800x3d": {
   "file": "glb/cpu-7800x3d.glb",
   "cat": "cpu",
@@ -193,7 +173,12 @@
   "title": "AMD Ryzen 7 7800X3D",
   "source": "https://sketchfab.com/3d-models/amd-ryzen-7-7800x3d-209c4aada00e4b1790d8d274bac98779",
   "ids": [
-   "r7-7800x3d"
+   "r7-7800x3d",
+   "r5-5600",
+   "r7-5700x",
+   "r5-3600",
+   "i7-10700k",
+   "i7-6700k"
   ],
   "flip": [
    -1,

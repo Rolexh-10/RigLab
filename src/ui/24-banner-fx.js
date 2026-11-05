@@ -16,10 +16,19 @@
     var host = $('bg-fx'); if (!window.particlesJS || !host || host.__fx) return; host.__fx = 1;
     var reduce = false; try { reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) {}
     var common = { retina_detect: false };
+    // phones: the 700-particle link graph is O(n^2) per frame and starves the 3D viewer, so use a lighter network there
+    var lite = false; try { lite = window.matchMedia('(pointer: coarse)').matches || window.innerWidth < 700; } catch (e) {}
+    // pause every particle loop while the person drags the 3D viewer (or the tab is hidden); resume right after
+    var fxPaused = false, fxTimer = 0;
+    function fxPause() { if (fxPaused) return; fxPaused = true; (window.pJSDom || []).forEach(function (d) { try { cancelAnimationFrame(d.pJS.fn.drawAnimFrame); } catch (e) {} }); }
+    function fxResume() { if (!fxPaused) return; fxPaused = false; (window.pJSDom || []).forEach(function (d) { try { cancelAnimationFrame(d.pJS.fn.drawAnimFrame); d.pJS.fn.drawAnimFrame = requestAnimationFrame(d.pJS.fn.vendors.draw); } catch (e) {} }); }
+    document.addEventListener('pointerdown', function (e) { if (e.target && e.target.classList && e.target.classList.contains('rig3d')) { clearTimeout(fxTimer); fxPause(); } }, true);
+    ['pointerup', 'pointercancel'].forEach(function (t) { document.addEventListener(t, function () { if (fxPaused) { clearTimeout(fxTimer); fxTimer = setTimeout(fxResume, 800); } }, true); });
+    document.addEventListener('visibilitychange', function () { if (document.hidden) fxPause(); else fxResume(); });
     // layer 0: connecting network (circuit traces) that grabs towards the finger / pointer
     var base = document.createElement('div'); base.id = 'fx-net'; base.className = 'fxl'; host.appendChild(base);
     window.particlesJS('fx-net', {
-      particles: { number: { value: 700, density: { enable: true, value_area: 800 } }, color: { value: ['#ff2d4b', '#7dff8a'] }, shape: { type: 'circle' }, opacity: { value: 0.6, random: true }, size: { value: 2.2, random: true },
+      particles: { number: { value: lite ? 220 : 700, density: { enable: true, value_area: 800 } }, color: { value: ['#ff2d4b', '#7dff8a'] }, shape: { type: 'circle' }, opacity: { value: 0.6, random: true }, size: { value: 2.2, random: true },
         line_linked: { enable: true, distance: 105, color: '#ff2d4b', opacity: 0.4, width: 1 }, move: { enable: !reduce, speed: 1.1, direction: 'none', random: true, out_mode: 'out' } },
       interactivity: { detect_on: 'window', events: { onhover: { enable: true, mode: 'grab' }, onclick: { enable: true, mode: 'push' }, resize: true }, modes: { grab: { distance: 170, line_linked: { opacity: 1 } }, push: { particles_nb: 3 } } },
       retina_detect: false
