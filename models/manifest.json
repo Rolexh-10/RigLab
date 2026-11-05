@@ -9,7 +9,12 @@
   "ids": [
    "rtx5070"
   ],
-  "def": true
+  "def": true,
+  "flip": [
+   -1,
+   1,
+   1
+  ]
  },
  "gpu-rog": {
   "file": "glb/gpu-rog.glb",
@@ -24,7 +29,7 @@
    "rx7700xt"
   ],
   "flip": [
-   -1,
+   1,
    -1,
    1
   ]
@@ -45,7 +50,7 @@
    "rx7600"
   ],
   "flip": [
-   -1,
+   1,
    -1,
    1
   ]
@@ -105,6 +110,11 @@
   "ids": [
    "ddr5-16-5600",
    "ddr5-32-6000"
+  ],
+  "flip": [
+   -1,
+   1,
+   1
   ]
  },
  "ram-crucial4": {
@@ -126,7 +136,12 @@
   "author": "lime.ball.animations (https://sketchfab.com/lime.ball.animations.official)",
   "title": "RAM Corsair Vengeance DDR4 RGB Pro",
   "source": "https://sketchfab.com/3d-models/ram-corsair-vengeance-ddr4-rgb-pro-ee5c6e6b2e524d63a7043365e73a2420",
-  "ids": []
+  "ids": [],
+  "flip": [
+   -1,
+   1,
+   1
+  ]
  },
  "cpu-7900x": {
   "file": "glb/cpu-7900x.glb",
@@ -145,7 +160,7 @@
   ],
   "def": true,
   "flip": [
-   -1,
+   1,
    -1,
    1
   ]
@@ -165,7 +180,7 @@
    "i7-6700k"
   ],
   "flip": [
-   -1,
+   1,
    -1,
    1
   ]
@@ -215,7 +230,7 @@
   "plane": true,
   "anchor": true,
   "flip": [
-   1,
+   -1,
    -1,
    1
   ]
@@ -232,7 +247,12 @@
    "a520m"
   ],
   "plane": true,
-  "anchor": true
+  "anchor": true,
+  "flip": [
+   -1,
+   1,
+   1
+  ]
  },
  "mobo-h510m": {
   "file": "glb/mobo-h510m.glb",
@@ -247,7 +267,12 @@
    "b760m-ddr4"
   ],
   "plane": true,
-  "anchor": true
+  "anchor": true,
+  "flip": [
+   -1,
+   -1,
+   1
+  ]
  },
  "mobo-z170": {
   "file": "glb/mobo-z170.glb",
@@ -262,7 +287,7 @@
   "plane": true,
   "anchor": true,
   "flip": [
-   1,
+   -1,
    -1,
    1
   ]
@@ -277,7 +302,12 @@
   "ids": [
    "ddr4-32-3200"
   ],
-  "type": "DDR4"
+  "type": "DDR4",
+  "flip": [
+   -1,
+   1,
+   1
+  ]
  },
  "ram-tforce5": {
   "file": "glb/ram-tforce5.glb",
@@ -287,7 +317,12 @@
   "title": "DDR5 RAM - Teamgroup T-Force White",
   "source": "https://sketchfab.com/3d-models/ddr5-ram-teamgroup-t-force-white-198540480d3241f6be95d7e57f53b90a",
   "ids": [],
-  "type": "DDR5"
+  "type": "DDR5",
+  "flip": [
+   -1,
+   1,
+   1
+  ]
  },
  "ram-generic": {
   "file": "glb/ram-generic.glb",
@@ -310,7 +345,12 @@
    "b550-atx"
   ],
   "plane": true,
-  "anchor": true
+  "anchor": true,
+  "flip": [
+   -1,
+   1,
+   1
+  ]
  },
  "case-meshify": {
   "file": "glb/case-meshify.glb",

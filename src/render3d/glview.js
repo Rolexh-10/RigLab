@@ -15,6 +15,7 @@
     RX: function (a) { var c = Math.cos(a), s = Math.sin(a), m = M.id(); m[5] = c; m[6] = s; m[9] = -s; m[10] = c; return m; },
     RY: function (a) { var c = Math.cos(a), s = Math.sin(a), m = M.id(); m[0] = c; m[2] = -s; m[8] = s; m[10] = c; return m; },
     RZ: function (a) { var c = Math.cos(a), s = Math.sin(a), m = M.id(); m[0] = c; m[1] = s; m[4] = -s; m[5] = c; return m; },
+    det3: function (m) { return m[0] * (m[5] * m[10] - m[6] * m[9]) - m[1] * (m[4] * m[10] - m[6] * m[8]) + m[2] * (m[4] * m[9] - m[5] * m[8]); },
     basis: function (b) { var m = M.id(); for (var i = 0; i < 3; i++) { m[i * 4] = b[i][0]; m[i * 4 + 1] = b[i][1]; m[i * 4 + 2] = b[i][2]; } return m; },
     persp: function (fy, asp, n, f) { var t = 1 / Math.tan(fy / 2), m = new Float32Array(16); m[0] = t / asp; m[5] = t; m[10] = (f + n) / (n - f); m[11] = -1; m[14] = 2 * f * n / (n - f); return m; },
     look: function (e, c, u) {
@@ -245,11 +246,13 @@
     function drawModel(entry, placement, alpha, pass) {
       entry.m.prims.forEach(function (pr) {
         var blend = pr.mat.mode === 'BLEND'; if ((pass === 'blend') !== blend) return;
-        setMat(pr.mat, { alpha: alpha, em: entry.cfg.em }); setModel(M.mul(placement, pr.node));
+        setMat(pr.mat, { alpha: alpha, em: entry.cfg.em }); var wm = M.mul(placement, pr.node);
+        gl.frontFace(M.det3(wm) < 0 ? gl.CW : gl.CCW); // glTF: a mirrored world matrix reverses triangle winding; without this culling hides the outside and shows the inside
+        setModel(wm);
         if (pr.mat.dbl) gl.disable(gl.CULL_FACE); else gl.enable(gl.CULL_FACE);
         gl.bindVertexArray(pr.vao); if (pr.type) gl.drawElements(gl.TRIANGLES, pr.count, pr.type, 0); else gl.drawArrays(gl.TRIANGLES, 0, pr.count);
       });
-      gl.disable(gl.CULL_FACE);
+      gl.frontFace(gl.CCW); gl.disable(gl.CULL_FACE);
     }
     function drawFan(c, axis, r, spin, alpha) {
       var base = axis === 'z' ? M.id() : axis === 'y' ? M.RX(-Math.PI / 2) : M.RY(Math.PI / 2);
@@ -385,7 +388,15 @@
       gl: true, setParts: function (p) { setParts(p); start(); }, state: st, models: models, draw: function () { draw(performance.now()); },
       rotate: function (d) { st.yaw += d; st.auto = false; invalidate(); }, zoomBy: function (f) { zset(st.zoom * f); },
       toggleAuto: function () { st.auto = !st.auto; invalidate(); return st.auto; },
-      force: function (cat, id) { forced[cat] = id; invalidate(); }
+      force: function (cat, id) { forced[cat] = id; invalidate(); },
+      // diagnostics: the linear part (3 columns = images of model axes) and its determinant (< 0 means the model is drawn mirrored)
+      orient: function (id, box) {
+        var e = ensure(id); if (!e || e.state !== 'ready') return null;
+        var R = e.cfg.basis ? M.basis(e.cfg.basis) : autoBasis(e.m, box), F = e.cfg.flip ? M.mul(M.S(e.cfg.flip[0], e.cfg.flip[1], e.cfg.flip[2]), R) : R;
+        var c = [0, 1, 2].map(function (i) { return [F[i * 4], F[i * 4 + 1], F[i * 4 + 2]]; });
+        var det = c[0][0] * (c[1][1] * c[2][2] - c[1][2] * c[2][1]) - c[0][1] * (c[1][0] * c[2][2] - c[1][2] * c[2][0]) + c[0][2] * (c[1][0] * c[2][1] - c[1][1] * c[2][0]);
+        return { det: Math.round(det), cols: c.map(function (v) { return v.map(Math.round); }) };
+      }
     };
   }
   V3.createGL = create;

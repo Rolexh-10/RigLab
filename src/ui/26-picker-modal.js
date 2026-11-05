@@ -55,7 +55,7 @@
     }
     var sh = S.sheet, body = '';
     if (sh.type === 'more') {
-      body = '<h2>' + L('المزيد', 'More') + '</h2><div class="morelist">' + [].concat(NAV.filter(function (n) { return ['home', 'parts', 'builder', 'compat', 'tools', 'builds', 'trust'].indexOf(n.r) < 0; }), [{ r: 'tools', ar: 'الأدوات', en: 'Tools' }, { r: 'psu-calc', ar: 'حاسبة PSU', en: 'PSU Calculator' }, { r: 'ups-calc', ar: 'حاسبة UPS', en: 'UPS Calculator' }, { r: 'upgrade-advisor', ar: 'Upgrade Advisor', en: 'Upgrade Advisor' }, { r: 'power-calc', ar: 'أمبيرات المولدة', en: 'Generator amps' }], NAV.filter(function (n) { return ['builds', 'trust'].indexOf(n.r) >= 0; })).map(function (n) {
+      body = '<h2>' + L('المزيد', 'More') + '</h2><div class="morelist">' + [].concat(NAV.filter(function (n) { return ['home', 'parts', 'builder', 'compat', 'tools', 'builds', 'trust'].indexOf(n.r) < 0; }), [{ r: 'tools', ar: 'الأدوات', en: 'Tools' }], NAV.filter(function (n) { return ['builds', 'trust'].indexOf(n.r) >= 0; })).map(function (n) {
         return '<a class="art" style="--tc:' + (ART_COL[n.r] || '#ff2d4b') + '" href="#' + n.r + '" data-act="close-sheet">' + toolArt(n.r) + '<span>' + L(n.ar, n.en) + '</span><span aria-hidden="true">‹</span></a>';
       }).join('') + '</div>';
     }
