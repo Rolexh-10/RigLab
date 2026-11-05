@@ -1,4 +1,4 @@
-# RigLab architecture (Phase 2, v0.3.0)
+# RigLab architecture (Phase 3, v0.4.0)
 
 Status: working prototype, refactored into modules. Behaviour and look are unchanged from `v0.1-prototype`
 (git tag). Everything below is **sample data**; no real prices, stores or merchant integrations exist.
@@ -41,6 +41,8 @@ src/
     58-react-bridge.js      NEW: exposes state/lang/subscribe/trust content to React
     60-render-init.js       render(): if React owns the route -> RigLabReact.mount, else legacy VIEWS[route].html()
   styles/  render3d/  vendor/  index.template.html   unchanged
+  repo/                     NEW (Phase 3): BuildRepo interface, LocalBuildRepo, SupabaseBuildRepo (see docs/DATABASE.md)
+db/                         NEW (Phase 3): migrations, generated seed, local-test shim
 web/                        Next.js scaffold, UNVERIFIED (see web/README.md)
 scripts/build.js            assembles dist/*.html;  scripts/lib/engine.js = esbuild wrappers (engine + React app)
 tests/unit/*.test.js        pure Node tests via tsx (no browser)
