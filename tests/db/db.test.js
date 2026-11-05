@@ -29,6 +29,7 @@ test.before(() => {
   must(psql('create database ' + DB, { db: 'postgres' }));
   must(psql('', { file: path.join(root, 'db/test/supabase-shim.sql') }));
   must(psql('', { file: path.join(root, 'db/migrations/0001_init.sql') }));
+  must(psql('', { file: path.join(root, 'db/migrations/0002_store_integration.sql') }));
   must(psql('', { file: path.join(root, 'db/seed.sql') }));
   must(psql(`insert into auth.users (id,email) values ('${A}','a@test'),('${B}','b@test')`));
 });
@@ -94,11 +95,60 @@ test('profiles: auto-created on signup, own row only, only display_name/lang edi
   assert.match(psql("update profiles set lang='fr'", { as: a }).err, /check/);
 });
 
+const LIVE = (id) => `insert into stores (id,name_ar,name_en,is_live,url) values ('${id}','x','${id}',true,'https://example.com/${id}');`;
+const ONB = (id) => `insert into store_onboarding (store_id,status,permission_note,permitted_at,feed_kind) values ('${id}','active','WhatsApp OK (test fixture)',now(),'csv');`;
+
+test('stores: cannot go live without active onboarding; onboarding needs written proof', { skip }, () => {
+  assert.match(psql(LIVE('real-0')).err, /without active onboarding/);
+  must(psql(LIVE('real-1') + ONB('real-1')));
+  assert.match(psql("insert into stores (id,name_ar,name_en,is_live) values ('real-2','x','x',true)").err, /live_needs_url/);
+  must(psql("insert into stores (id,name_ar,name_en) values ('pending-1','x','x')"));
+  assert.match(psql("insert into store_onboarding (store_id,status) values ('pending-1','active')").err, /permitted_needs_proof/);
+});
+
 test('offers: sample prices cannot sit on a live store; verified must', { skip }, () => {
-  must(psql("insert into stores (id,name_ar,name_en,is_live,url) values ('real-1','x','Real 1',true,'https://example.com')"));
   assert.match(psql("insert into offers (part_id,store_id,price_iqd,source) values ('r5-7600','real-1',100000,'sample')").err, /does not match/);
   assert.match(psql("insert into offers (part_id,store_id,price_iqd,source) values ('r5-7600','sample-a',1,'verified') on conflict (part_id,store_id) do update set source='verified', price_iqd=1").err, /does not match/);
-  must(psql("insert into offers (part_id,store_id,price_iqd,source) values ('r5-7600','real-1',100000,'verified')"));
-  assert.match(psql("insert into stores (id,name_ar,name_en,is_live) values ('real-2','x','x',true)").err, /live_needs_url/);
   assert.match(psql("insert into offers (part_id,store_id,price_iqd) values ('r5-7600','real-1',0) on conflict do nothing").err, /check|price_iqd/);
 });
+
+test('upsert_verified_offer: only the service role, only active live stores, newer observation wins, stale flag', { skip }, () => {
+  const call = (st, price, ts) => `select upsert_verified_offer('r5-7600','${st}',${price},true,'${ts}'::timestamptz)`;
+  assert.match(psql(call('real-1', 250000, '2026-11-01T00:00:00Z'), { as: { role: 'authenticated', uid: A } }).err, /permission denied/);
+  assert.match(psql(call('real-1', 250000, '2026-11-01T00:00:00Z'), { as: { role: 'anon' } }).err, /permission denied/);
+  assert.match(psql(call('sample-a', 250000, '2026-11-01T00:00:00Z')).err, /not live\/active/);
+  assert.match(psql(call('pending-1', 250000, '2026-11-01T00:00:00Z')).err, /not live\/active/);
+  must(psql(call('real-1', 250000, '2026-11-01T00:00:00Z')));
+  must(psql(call('real-1', 999999, '2026-10-01T00:00:00Z')));   // older: ignored
+  assert.equal(must(psql("select price_iqd||'/'||source from offers where store_id='real-1' and part_id='r5-7600'")), '250000/verified');
+  must(psql(call('real-1', 240000, '2026-11-02T00:00:00Z')));   // newer: wins
+  assert.equal(must(psql("select price_iqd from offers where store_id='real-1' and part_id='r5-7600'")), '240000');
+  must(psql("update offers set observed_at = now() - interval '10 days' where store_id='real-1'"));
+  assert.equal(must(psql("select stale from offers_public where store_id='real-1'", { as: { role: 'anon' } })), 't');
+  must(psql("update offers set observed_at = now() where store_id='real-1'"));
+  assert.equal(must(psql("select stale from offers_public where store_id='real-1'", { as: { role: 'anon' } })), 'f');
+});
+
+test('review queue and onboarding are invisible to clients', { skip }, () => {
+  for (const t of ['offer_review_queue', 'store_onboarding']) {
+    assert.match(psql('select * from ' + t, { as: { role: 'authenticated', uid: A } }).err, /permission denied/);
+    assert.match(psql('select * from ' + t, { as: { role: 'anon' } }).err, /permission denied/);
+  }
+});
+
+test('end to end: CSV feed -> ingest pipeline -> SQL -> database (fixture data, not real prices)', { skip }, async () => {
+  const { CsvFeedConnector, ingest, toSql } = require('../../src/ingest');
+  must(psql(LIVE('e2e-store') + ONB('e2e-store')));
+  const csv = 'title,price,sku,available,observed_at\n' +
+    '"AMD Ryzen 5 7600 Box",270000,A1,yes,2026-11-03T09:00:00Z\n' +
+    'NVIDIA GeForce RTX 4060 Ti 8GB,"520,000",A2,نعم,2026-11-03T09:00:00Z\n' +
+    'Ryzen 7 7700X,5000,A3,yes,2026-11-03T09:00:00Z\n' +      // suspect price -> review
+    'Mystery gadget 9000,100000,A4,yes,2026-11-03T09:00:00Z\n'; // unknown -> review
+  const rep = ingest(await new CsvFeedConnector(csv, 'e2e-store', '2026-11-03T09:00:00Z').fetch(), { now: new Date('2026-11-04T00:00:00Z') });
+  assert.deepEqual(rep.accepted.map((a) => a.partId).sort(), ['r5-7600', 'rtx4060ti']);
+  assert.equal(rep.review.length, 2);
+  must(psql('', { file: writeTmp(toSql(rep)) }));
+  assert.equal(must(psql("select count(*) from offers where store_id='e2e-store' and source='verified'")), '2');
+  assert.equal(must(psql("select count(*) from offer_review_queue where store_id='e2e-store' and status='open'")), '2');
+});
+function writeTmp(sql) { const f = path.join(require('os').tmpdir(), 'riglab-e2e-' + process.pid + '.sql'); fs.writeFileSync(f, sql); return f; }
