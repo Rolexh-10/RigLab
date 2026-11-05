@@ -2,14 +2,12 @@
 // The browser bundle must expose exactly what Node tests exercise (same modules, no drift).
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const path = require('path');
 const vm = require('vm');
-const { bundle } = require('../../scripts/lib/bundle');
+const { buildEngine } = require('../../scripts/lib/engine');
 
-test('bundled core/data behave like the required modules', () => {
-  const code = bundle(path.join(__dirname, '../../src'), ['data', 'core'], { RigLabData: 'data/index', RigLabCore: 'core/index' });
+test('bundled core/data behave like the imported modules', () => {
   const win = {};
-  vm.runInNewContext(code, { window: win });
+  vm.runInNewContext(buildEngine(), { window: win });
   const C = require('../../src/core');
   assert.deepEqual(Object.keys(win.RigLabCore).sort(), Object.keys(C).sort());
   assert.equal(win.RigLabData.PARTS.length, require('../../src/data').PARTS.length);
@@ -19,6 +17,6 @@ test('bundled core/data behave like the required modules', () => {
 });
 
 test('bundle has no stray references to Node-only globals', () => {
-  const code = bundle(path.join(__dirname, '../../src'), ['data', 'core'], {});
+  const code = buildEngine();
   assert.ok(!/\bprocess\.|\bBuffer\b|require\('fs'\)/.test(code));
 });

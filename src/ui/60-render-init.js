@@ -33,11 +33,14 @@
     $('bnav-in').innerHTML = bnavHtml(rt);
     updateBadge();
     var v = VIEWS[rt] || VIEWS[r];
-    $('app').innerHTML = v.html();
+    var RR = window.RigLabReact, ported = !!(RR && RR.has(rt));
+    if (ported) RR.mount($('app'), rt);
+    else { if (RR) RR.unmount(); $('app').innerHTML = v.html(); }
     if (lastRoute !== rt) { var ap = $('app'); ap.classList.remove('enter'); void ap.offsetWidth; ap.classList.add('enter'); }
     $('app-main').className = rt === 'builder' ? 'has-bar' : '';
     $('foot-text').textContent = L('RigLab · نسخة تجريبية أولية · الأسعار والمواصفات عيّنات وليست عروض متاجر حقيقية.', 'RigLab · early trial build · prices and specs are samples, not real store offers.');
-    if (v.bind) v.bind();
+    if (!ported && v.bind) v.bind();
+    rbNotify();
     if (lastRoute !== rt) { window.scrollTo(0, 0); lastRoute = rt; try { var a = document.querySelector('#nav [aria-current]'); if (a && a.scrollIntoView) a.scrollIntoView({ block: 'nearest', inline: 'center' }); } catch (e) {} }
   }
   function curView() { var r = route(); return VIEWS[TOOL_ROUTES[r] ? 'tools' : r] || VIEWS.home; }

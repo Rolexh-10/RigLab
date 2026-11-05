@@ -5,7 +5,7 @@
 const fs = require('fs');
 const path = require('path');
 const root = path.join(__dirname, '..');
-const { bundle } = require('./lib/bundle');
+const { buildEngine, buildApp } = require('./lib/engine');
 const rd = (p) => fs.readFileSync(path.join(root, p), 'utf8');
 
 // "</script" inside inlined code would end the script block early.
@@ -21,8 +21,8 @@ const cat = (dir, ext) => fs.readdirSync(path.join(root, dir)).filter((f) => f.e
 const tpl = rd('src/index.template.html')
   .replace('/*__CSS__*/', () => cat('src/styles', '.css'))
   .replace('/*__DATA__*/', () => '')
-  .replace('/*__ENGINE__*/', () => safe(bundle(path.join(root, 'src'), ['data', 'core'], { RigLabData: 'data/index', RigLabCore: 'core/index' })))
-  .replace('/*__APP__*/', () => safe(rd('src/vendor/particles.js') + '\n' + models() + '\n' + rd('src/render3d/viewer3d.js') + '\n' + rd('src/render3d/glview.js') + '\n' + cat('src/ui', '.js')));
+  .replace('/*__ENGINE__*/', () => safe(buildEngine()))
+  .replace('/*__APP__*/', () => safe(rd('src/vendor/particles.js') + '\n' + models() + '\n' + buildApp() + '\n' + rd('src/render3d/viewer3d.js') + '\n' + rd('src/render3d/glview.js') + '\n' + cat('src/ui', '.js')));
 
 fs.mkdirSync(path.join(root, 'dist'), { recursive: true });
 fs.writeFileSync(path.join(root, 'dist/riglab.artifact.html'), tpl);

@@ -4,17 +4,20 @@
     return '<h3>' + L('نماذج 3D', '3D models') + '</h3><p>' + L('نماذج القطع في العارض ثلاثي الأبعاد من أعمال فنانين على Sketchfab بترخيص CC BY 4.0. الشعارات الظاهرة عليها تخص أصحابها وتُعرض للتوضيح فقط، ولا يعني ذلك رعاية أو شراكة.', 'Part models in the 3D viewer are by Sketchfab artists under CC BY 4.0. Logos visible on them belong to their owners and are shown for illustration only; no sponsorship or partnership is implied.') + '</p><ul>' + rows + '</ul><h3>' + L('مكتبات', 'Libraries') + '</h3><ul><li>particles.js — Vincent Garreau — MIT (' + L('خلفية الهيدر التفاعلية', 'interactive header background') + ')</li></ul>';
   }
   var TRUST_TABS = [['about', 'من نحن', 'About'], ['status', 'حالة النسخة', 'Status'], ['privacy', 'الخصوصية', 'Privacy'], ['ads', 'سياسة الإعلانات والمصادر', 'Ads and sources'], ['partners', 'الشراكات', 'Partners'], ['credits', 'الاعتمادات', 'Credits']];
-  VIEWS.trust = {
-    html: function () {
-      var tabs = TRUST_TABS.map(function (t) { return '<button class="chip" data-act="trust-tab" data-v="' + t[0] + '" aria-pressed="' + (S.trustTab === t[0]) + '">' + L(t[1], t[2]) + '</button>'; }).join('');
-      var body = {
+  function trustBody(tab) {
+    return {
         about: '<p>RigLab منصة أدوات مستقلة لتجميع الكمبيوتر وفحص التوافق وحساب التكلفة، موجّهة أولاً للمستخدم العراقي. ما نبيع قطع ولا ننافس المحلات.</p><p>هذه نسخة أولية تجريبية. لم تُسجَّل شركة بعد، ولا توجد شروط قانونية رسمية منشورة باسم جهة مسجلة.</p>',
         status: '<h3>ما نُفّذ فعلياً</h3><ul><li>PC Builder مع سعر فوري وفحص توافق (سوكيت، BIOS، رام، حجم اللوحة، طول الكرت، المبرد، الطاقة).</li><li>فحص التوافق بأمثلة جاهزة، وحالات «غير مؤكد» عند نقص البيانات.</li><li>الميزانية الذكية بقواعد، ومستكشف القطع، ومقارنة قطعتين أو تجميعتين.</li><li>حاسبة PSU وUPS وUpgrade Advisor وMonitor Selector وStorage (نسخ مبسطة).</li><li>حفظ محلي للتجميعات، كود استيراد/مشاركة، وملخص نصي.</li><li>نموذج Price Radar ببيانات تجريبية موسومة.</li></ul><h3>ما بقي</h3><ul><li>أسعار محلات حقيقية بموافقتها، وحسابات المستخدمين، وحفظ على خادم، وروابط مشاركة حقيقية.</li><li>Benchmarks موثقة، Community Builds، تنبيهات الأسعار، Academy، لوحة الإدارة الفعلية.</li><li>ترجمة إنكليزية كاملة (الحالية جزئية).</li></ul>',
         privacy: '<p>في هذه النسخة لا يُرسل أي شيء إلى خادم. التجميعات المحفوظة وتفضيل اللغة وعدّادات الأحداث تُحفظ في متصفحك فقط (localStorage) ويمكنك مسحها من إعدادات المتصفح.</p><p>لا نجمع أسماء أو أرقام هواتف أو مواقع. كود المشاركة يحتوي أرقام القطع فقط. عند إضافة تحليلات حقيقية (GA4) سنحدّث هذه الصفحة ونتجنب جمع بيانات شخصية.</p>',
         ads: '<p>توجد مساحة إعلانية موسومة «إعلان» بكل صفحة عمل (الرئيسية، القطع، Builder، السلة، الميزانية، التوافق، المقارنة، الأدوات، تجميعاتي)، واحدة بالصفحة وبعد المحتوى الأساسي. لا تظهر داخل نتائج التوافق ولا في صفحات السياسات.</p><p>أي إعلان أو رعاية تظهر بوسم واضح «إعلان» أو «برعاية». الرعاية لا تغيّر ترتيب «الأرخص» ولا نتائج التوافق.</p><p>مصادر البيانات: الكتالوج الحالي عيّنة تجريبية بمواصفات عامة تقريبية، والأسعار كلها تجريبية. لا نستخدم أسعار متاجر دون إذنها، ولا ننشر Benchmarks أو FPS غير موثقة.</p>',
         partners: '<h3>الإعلانات</h3><p>توجد مساحات إعلانية موسومة «إعلان» بكل صفحة عمل. لا تظهر الإعلانات داخل نتائج التوافق ولا تغيّر ترتيب الأسعار. للحجز تواصل على واتساب أو البريد (أدناه).</p><p>إذا كنت صاحب محل أو شركة وتريد إدراج أسعارك في RigLab، الفكرة: إدراج مجاني تجريبي بموافقتك، مع تاريخ تحديث لكل سعر ورابط مباشر لمحلك.</p><div class="note">للتواصل (شراكات، إدراج أسعار، إعلانات):<br>واتساب: <a href="' + CONTACT.waLink + '" target="_blank" rel="noopener noreferrer" class="mono">' + CONTACT.wa + '</a><br>البريد: <span class="mono">' + CONTACT.email + '</span></div>',
         credits: creditsHtml()
-      }[S.trustTab];
+    }[tab];
+  }
+  VIEWS.trust = {
+    html: function () {
+      var tabs = TRUST_TABS.map(function (t) { return '<button class="chip" data-act="trust-tab" data-v="' + t[0] + '" aria-pressed="' + (S.trustTab === t[0]) + '">' + L(t[1], t[2]) + '</button>'; }).join('');
+      var body = trustBody(S.trustTab);
       return '<div class="stack"><h1>' + L('عن RigLab', 'About RigLab') + '</h1>' + (lang === 'en' ? '<div class="note">English text for these pages is not translated yet; Arabic is shown.</div>' : '') + '<div class="chips">' + tabs + '</div><div class="card stack-s" style="line-height:1.8">' + body + '</div><p class="small muted"><a href="#admin">' + L('تصميم لوحة الإدارة (غير مفعّل)', 'Admin dashboard design (inactive)') + '</a></p></div>';
     }
   };
