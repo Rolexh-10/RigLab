@@ -36,6 +36,7 @@
   VIEWS.builder = {
     bind: function () {
       var cv = $('rig3d'); if (!cv || !window.RigLab3D) return; cv.dataset.gl = '1';
+      if (S.v3 && S.v3.destroy) { try { S.v3.destroy(); } catch (e) {} S.v3 = null; }
       var R3 = window.RigLab3D, parts = C.resolve(S.build), gl = null;
       try { gl = R3.createGL && !/[?&]flat3d/.test(location.search) ? R3.createGL(cv) : null; if (gl) gl.setParts(parts); } catch (e) { gl = null; }
       if (gl) { S.v3 = gl; return; }

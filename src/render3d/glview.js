@@ -357,7 +357,8 @@
     }
     // on-demand rendering: draw only when something changed (or while an animation runs)
     var pend = false, last = 0;
-    function invalidate() { if (pend || !canvas.isConnected) return; pend = true; st.raf = requestAnimationFrame(frame); }
+    var dead = false;
+    function invalidate() { if (dead || pend || !canvas.isConnected) return; pend = true; st.raf = requestAnimationFrame(frame); }
     function frame(now) {
       pend = false; st.raf = 0; if (!canvas.isConnected) return;
       if (document.hidden) return;
@@ -389,6 +390,8 @@
       rotate: function (d) { st.yaw += d; st.auto = false; invalidate(); }, zoomBy: function (f) { zset(st.zoom * f); },
       toggleAuto: function () { st.auto = !st.auto; invalidate(); return st.auto; },
       force: function (cat, id) { forced[cat] = id; invalidate(); },
+      // release the GL context: every builder re-render makes a new canvas, and unreleased contexts pile up GPU memory (phones then stall)
+      destroy: function () { dead = true; if (st.raf) cancelAnimationFrame(st.raf); st.raf = 0; try { var x = gl.getExtension('WEBGL_lose_context'); if (x) x.loseContext(); } catch (e) {} },
       // diagnostics: the linear part (3 columns = images of model axes) and its determinant (< 0 means the model is drawn mirrored)
       orient: function (id, box) {
         var e = ensure(id); if (!e || e.state !== 'ready') return null;
