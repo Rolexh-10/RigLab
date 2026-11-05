@@ -180,8 +180,8 @@
    "i7-6700k"
   ],
   "flip": [
-   1,
    -1,
+   1,
    1
   ]
  },
@@ -411,7 +411,7 @@
    ]
   ],
   "license": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
-  "author": "MpPower™ (https://sketchfab.com/MG990)",
+  "author": "MpPower\u2122 (https://sketchfab.com/MG990)",
   "source": "https://sketchfab.com/3d-models/corsair-h150i-elitie-cpu-liquid-cooler-faa8f55407404fd2870e35ab6a8f03bb"
  },
  "aio-pump": {
@@ -420,7 +420,7 @@
   "title": "Corsair H150i Elite CPU Liquid Cooler (pump)",
   "ids": [],
   "license": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
-  "author": "MpPower™ (https://sketchfab.com/MG990)",
+  "author": "MpPower\u2122 (https://sketchfab.com/MG990)",
   "source": "https://sketchfab.com/3d-models/corsair-h150i-elitie-cpu-liquid-cooler-faa8f55407404fd2870e35ab6a8f03bb",
   "basis": [
    [

@@ -41,7 +41,7 @@
     if (cl) {
       var tooTall = cs && cs.maxCoolerMm && cl.heightMm && cl.heightMm > cs.maxCoolerMm;
       if (cl.radiatorMm) {
-        P('cooler', false, [B(trayX - 30, cpuY, cpuZ, 50, 70, 70, COL.cooler), B(-W / 2 + 70, H / 2 - 22, rear - 80 - cl.radiatorMm / 2, 120, 27, cl.radiatorMm, COL.cooler)], false);
+        P('cooler', false, [B(trayX - 30, cpuY, cpuZ, 50, 70, 70, COL.cooler), B(-W / 2 + 70, H / 2 - 22, Math.min(-D / 2 + 14 + cl.radiatorMm / 2, rear - 20 - cl.radiatorMm / 2), 120, 27, cl.radiatorMm, COL.cooler)], false);
       } else {
         var h = cl.heightMm || 140;
         P('cooler', false, [B(trayX - 5 - h / 2, cpuY, cpuZ, h, 125, 90, COL.cooler)], tooTall);
