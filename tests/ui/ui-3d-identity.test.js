@@ -39,6 +39,10 @@ test('3D identity: selection, swap, removal, reload, language, touch', async () 
   r = await ident(); assert.equal(by(r, 'cpu').level, 'generic'); assert.equal(by(r, 'mobo').level, 'generic'); assert.equal(by(r, 'gpu').level, 'generic');
   // exact where it is truly exact
   await setBuild({ ...base, cpu: 'r7-7800x3d' }); r = await ident(); assert.equal(by(r, 'cpu').level, 'exact'); assert.equal(by(r, 'case').level, 'exact');
+  // Task 02: AM4 CPUs use the Ryzen 5 3600 model (exact for itself, disclosed look-alike for same-socket chips); ATX model never used for an mATX board; broken 7950X3D asset stays generic
+  await setBuild({ ...base, cpu: 'r5-3600', mobo: 'b550-atx' }); r = await ident(); assert.equal(by(r, 'cpu').level, 'exact'); assert.equal(by(r, 'cpu').model, 'cpu-3600'); assert.equal(by(r, 'mobo').model, 'mobo-b550f');
+  await setBuild({ ...base, cpu: 'r5-5600', mobo: 'b550m' }); r = await ident(); assert.equal(by(r, 'cpu').level, 'representative'); assert.match(by(r, 'cpu').actual, /Ryzen 5 3600/); assert.match(r.label, /Ryzen 5 3600/); assert.equal(by(r, 'mobo').level, 'generic'); assert.equal(by(r, 'mobo').model, null);
+  await setBuild({ ...base, cpu: 'r9-7950x3d' }); r = await ident(); assert.equal(by(r, 'cpu').level, 'generic'); assert.equal(by(r, 'cpu').model, null);
   // saved-build reload via share code
   const code = await page.evaluate(() => window.RigLabCore.encodeBuild({ cpu: 'i7-14700k', mobo: 'z790-ddr5', ram: 'ddr5-32-6000', gpu: 'rx7700xt', storage: 'nvme-1tb', psu: 'psu-750', case: 'case-meshify-c' }));
   await page.evaluate((c) => { const S = window.RigLabApp.state; S.build = window.RigLabCore.decodeBuild(c); window.RigLabApp.render(); }, code);

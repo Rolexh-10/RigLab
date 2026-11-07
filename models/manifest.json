@@ -260,10 +260,9 @@
       "vendor": "amd",
       "socket": "AM5"
     },
-    "products": {
-      "r9-7950x3d": "exact"
-    },
-    "priority": 1
+    "products": {},
+    "priority": 0,
+    "note": "UNMAPPED (Task 02 QA): the GLB is a ~1,950-cube assembly with near-cubic bounds (0.77 x 0.57 x 0.56); it renders as a tall dark sliver instead of a flat CPU package, so it must not stand for any product until it is re-extracted"
   },
   "mobo-b550f": {
     "file": "glb/mobo-b550f.glb",
@@ -287,11 +286,10 @@
       "form": "ATX"
     },
     "products": {
-      "b550-atx": "representative",
-      "b550m": "representative"
+      "b550-atx": "representative"
     },
     "priority": 1,
-    "note": "b550m: ATX board scaled into an mATX box"
+    "note": "ATX board; B550M (mATX) products are deliberately NOT mapped: scaling ATX into an mATX box distorts the slot layout"
   },
   "mobo-x370": {
     "file": "glb/mobo-x370.glb",
@@ -343,7 +341,8 @@
     "products": {
       "h510m": "representative"
     },
-    "priority": 1
+    "priority": 1,
+    "qaNote": "Known visual defect (Task 02 QA): chaotic silver streak shading on the PCB in the viewer; identity and slot layout are plausible but the material needs re-authoring. Kept because no other mATX LGA1200 asset exists."
   },
   "mobo-z170": {
     "file": "glb/mobo-z170.glb",
@@ -660,5 +659,31 @@
         0
       ]
     ]
+  },
+  "cpu-3600": {
+    "file": "glb/cpu-3600.glb",
+    "cat": "cpu",
+    "license": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
+    "author": "Fochdog (https://sketchfab.com/bazyaev08)",
+    "title": "CPU Ryzen 5 3600",
+    "source": "https://sketchfab.com/3d-models/cpu-ryzen-5-3600-249fb5e8c1e94686a2c2b1cd6df72bc5",
+    "identity": {
+      "manufacturer": "AMD",
+      "product": "Ryzen 5 3600",
+      "vendor": "amd",
+      "socket": "AM4"
+    },
+    "products": {
+      "r5-3600": "exact",
+      "r5-5600": "representative",
+      "r7-5700x": "representative"
+    },
+    "priority": 2,
+    "flip": [
+      -1,
+      -1,
+      -1
+    ],
+    "note": "AM4 package; the IHS print reads Ryzen 5 3600 (disclosed for r5-5600 / r7-5700x). Optimised for RigLab: 41k-vertex pin grid (hidden under the IHS when seated) removed, only the base-colour texture kept (1024px JPEG)."
   }
 }

@@ -23,7 +23,7 @@ jobs:
         env:
           PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: "1"
       - name: Typecheck and unit tests
-        run: npm run typecheck && npm run test:unit
+        run: npm run typecheck && npm run models:check && npm run test:unit
       - name: Build site (HTML + external GLB assets)
         run: npm run build
       - name: Assemble site

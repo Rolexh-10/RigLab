@@ -47,7 +47,11 @@ test('named regressions: no Radeon->GeForce, Intel->Ryzen, B650->Z790 substituti
   assert.equal(pick('gpu', 'rtx5070').id, 'gpu-trio');
   assert.equal(pick('gpu', 'rtx4090').id, 'gpu-aero4090');
   for (const id of ['i5-12400f', 'i5-13400f', 'i7-14700k', 'i7-10700k', 'i7-6700k']) assert.equal(pick('cpu', id), null, id + ' must be generic (no Intel model)');
-  for (const id of ['r5-5600', 'r7-5700x', 'r5-3600']) assert.equal(pick('cpu', id), null, id + ' (AM4) must be generic');
+  // AM4: only the Ryzen 5 3600 model exists (exact for itself, disclosed look-alike for same-socket Zen chips); the 7950X3D asset is unmapped
+  assert.equal(pick('cpu', 'r5-3600').level, 'exact');
+  for (const id of ['r5-5600', 'r7-5700x']) { assert.equal(pick('cpu', id).level, 'representative', id); assert.equal(pick('cpu', id).identity.socket, 'AM4'); }
+  assert.equal(pick('cpu', 'r9-7950x3d'), null, '7950X3D asset is unmapped (renders as a sliver)');
+  assert.equal(pick('mobo', 'b550m'), null, 'mATX B550M must not use the ATX B550-F model');
   assert.equal(pick('cpu', 'r7-7800x3d').level, 'exact');
   assert.equal(pick('cpu', 'r5-7600').identity.vendor, 'amd');
   for (const id of ['b650m', 'b650-atx', 'a520m', 'b660m-ddr4', 'b760m-ddr4', 'b760m-ddr5']) assert.equal(pick('mobo', id), null, id + ' must be generic');

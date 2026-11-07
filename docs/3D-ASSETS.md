@@ -44,3 +44,6 @@ Estimated (not measured): phone GPU behaviour and mobile network times.
 4. Switch to Parts and back: viewer returns, rotation kept.
 5. Lock/unlock the screen, rotate the phone, switch apps and come back: scene still draws.
 6. Airplane mode, then add a part with an uncached model: generic box, no crash.
+
+## Model onboarding (Task 02)
+`npm run models:check` (scripts/validate-models.ts) validates the manifest schema, unique/safe file refs, GLB structure (via scripts/lib/glb.js), mandatory licence/author/source, product ids against the catalog, vendor / form-factor / socket / DDR agreement, `exact` name match, transform metadata (flip/basis/scale), optional `realMm` proportions and the fit of each model into the scene box the renderer uses. `npm run models:report` regenerates `docs/3D-MODEL-MAPPING.md`. See `docs/3D-ORIENTATION-CHECKLIST.md`.
