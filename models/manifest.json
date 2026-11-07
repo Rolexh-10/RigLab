@@ -602,5 +602,63 @@
     },
     "priority": 1,
     "note": "brandless shell taken from a full-PC model; logo removed; interior parts, cables and top mesh dropped"
+  },
+  "gpu-msi4060ti": {
+    "file": "glb/gpu-msi4060ti.glb",
+    "cat": "gpu",
+    "license": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
+    "author": "shig0 (https://sketchfab.com/shig0)",
+    "title": "MSI GAMING X RTX 4060Ti",
+    "source": "https://sketchfab.com/3d-models/msi-gaming-x-rtx-4060ti-88bcc40d2ecc450d9bf10f1d6c6f079c",
+    "identity": {
+      "manufacturer": "MSI",
+      "product": "GeForce RTX 4060 Ti Gaming X",
+      "vendor": "nvidia",
+      "chip": "rtx4060ti"
+    },
+    "products": {
+      "rtx4060ti": "representative"
+    },
+    "priority": 2,
+    "flip": [
+      -1,
+      -1,
+      1
+    ]
+  },
+  "gpu-giga4060": {
+    "file": "glb/gpu-giga4060.glb",
+    "cat": "gpu",
+    "license": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
+    "author": "Rafiq Redzuan (https://sketchfab.com/rafiqradzuqn27)",
+    "title": "Gigabyte RTX 4060 Gaming oc",
+    "source": "https://sketchfab.com/3d-models/gigabyte-rtx-4060-gaming-oc-678061e3fa9745af8e32c26437344e47",
+    "identity": {
+      "manufacturer": "Gigabyte",
+      "product": "GeForce RTX 4060 Gaming OC",
+      "vendor": "nvidia",
+      "chip": "rtx4060"
+    },
+    "products": {
+      "rtx4060": "representative"
+    },
+    "priority": 1,
+    "basis": [
+      [
+        0,
+        0,
+        1
+      ],
+      [
+        0,
+        1,
+        0
+      ],
+      [
+        -1,
+        0,
+        0
+      ]
+    ]
   }
 }

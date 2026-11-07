@@ -41,7 +41,9 @@ test('every catalog product vs its assigned model: vendor, family and "exact" ho
 
 test('named regressions: no Radeon->GeForce, Intel->Ryzen, B650->Z790 substitution', () => {
   for (const id of ['rx7600', 'rx7700xt', 'rx7800xt']) assert.equal(pick('gpu', id), null, id + ' must be generic (no Radeon model exists)');
-  for (const id of ['rtx4060', 'rtx4060ti', 'rtx4070', 'rtx4070s', 'rtx5060ti', 'rtx5070ti']) assert.equal(pick('gpu', id), null, id + ' must not borrow another SKU');
+  for (const id of ['rtx4070', 'rtx4070s', 'rtx5060ti', 'rtx5070ti']) assert.equal(pick('gpu', id), null, id + ' must not borrow another SKU');
+  assert.equal(pick('gpu', 'rtx4060').id, 'gpu-giga4060');
+  assert.equal(pick('gpu', 'rtx4060ti').id, 'gpu-msi4060ti');
   assert.equal(pick('gpu', 'rtx5070').id, 'gpu-trio');
   assert.equal(pick('gpu', 'rtx4090').id, 'gpu-aero4090');
   for (const id of ['i5-12400f', 'i5-13400f', 'i7-14700k', 'i7-10700k', 'i7-6700k']) assert.equal(pick('cpu', id), null, id + ' must be generic (no Intel model)');

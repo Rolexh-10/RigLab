@@ -33,7 +33,7 @@ test('3D identity: selection, swap, removal, reload, language, touch', async () 
   await setBuild({ ...base, gpu: 'rx7600' }); r = await ident(); assert.equal(by(r, 'gpu').level, 'generic');
   await setBuild({ ...base }); r = await ident(); assert.equal(by(r, 'gpu'), undefined);
   // Intel CPU / B650 board: generic
-  await setBuild({ ...base, cpu: 'i5-13400f', mobo: 'b650m', gpu: 'rtx4060' });
+  await setBuild({ ...base, cpu: 'i5-13400f', mobo: 'b650m', gpu: 'rtx4070' });
   r = await ident(); assert.equal(by(r, 'cpu').level, 'generic'); assert.equal(by(r, 'mobo').level, 'generic'); assert.equal(by(r, 'gpu').level, 'generic');
   // exact where it is truly exact
   await setBuild({ ...base, cpu: 'r7-7800x3d' }); r = await ident(); assert.equal(by(r, 'cpu').level, 'exact'); assert.equal(by(r, 'case').level, 'exact');
