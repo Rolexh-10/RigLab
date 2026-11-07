@@ -1,569 +1,606 @@
 {
- "gpu-trio": {
-  "file": "glb/gpu-trio.glb",
-  "cat": "gpu",
-  "license": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
-  "author": "darky.vip21 (https://sketchfab.com/darky.vip21)",
-  "title": "Nvidia GeForce RTX 5070 - MSI Gaming X Trio",
-  "source": "https://sketchfab.com/3d-models/nvidia-geforce-rtx-5070-msi-gaming-x-trio-26fbe59aa2ab4a749ef71583aefdadd5",
-  "flip": [
-   -1,
-   1,
-   1
-  ],
-  "identity": {
-   "manufacturer": "MSI",
-   "product": "GeForce RTX 5070 Gaming X Trio",
-   "vendor": "nvidia",
-   "chip": "rtx5070"
+  "gpu-trio": {
+    "file": "glb/gpu-trio.glb",
+    "cat": "gpu",
+    "license": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
+    "author": "darky.vip21 (https://sketchfab.com/darky.vip21)",
+    "title": "Nvidia GeForce RTX 5070 - MSI Gaming X Trio",
+    "source": "https://sketchfab.com/3d-models/nvidia-geforce-rtx-5070-msi-gaming-x-trio-26fbe59aa2ab4a749ef71583aefdadd5",
+    "flip": [
+      -1,
+      1,
+      1
+    ],
+    "identity": {
+      "manufacturer": "MSI",
+      "product": "GeForce RTX 5070 Gaming X Trio",
+      "vendor": "nvidia",
+      "chip": "rtx5070"
+    },
+    "products": {
+      "rtx5070": "representative"
+    },
+    "priority": 3
   },
-  "products": {
-   "rtx5070": "representative"
+  "gpu-rog": {
+    "file": "glb/gpu-rog.glb",
+    "cat": "gpu",
+    "license": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
+    "author": "darky.vip21 (https://sketchfab.com/darky.vip21)",
+    "title": "Asus ROG RTX 5070 OC [ PBR ]",
+    "source": "https://sketchfab.com/3d-models/asus-rog-rtx-5070-oc-pbr-ee72267681864b50a8996a8f4137c400",
+    "flip": [
+      -1,
+      -1,
+      -1
+    ],
+    "identity": {
+      "manufacturer": "Asus",
+      "product": "ROG RTX 5070 OC",
+      "vendor": "nvidia",
+      "chip": "rtx5070"
+    },
+    "products": {
+      "rtx5070": "representative"
+    },
+    "priority": 1
   },
-  "priority": 3
- },
- "gpu-rog": {
-  "file": "glb/gpu-rog.glb",
-  "cat": "gpu",
-  "license": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
-  "author": "darky.vip21 (https://sketchfab.com/darky.vip21)",
-  "title": "Asus ROG RTX 5070 OC [ PBR ]",
-  "source": "https://sketchfab.com/3d-models/asus-rog-rtx-5070-oc-pbr-ee72267681864b50a8996a8f4137c400",
-  "flip": [
-   -1,
-   -1,
-   -1
-  ],
-  "identity": {
-   "manufacturer": "Asus",
-   "product": "ROG RTX 5070 OC",
-   "vendor": "nvidia",
-   "chip": "rtx5070"
+  "gpu-ventus": {
+    "file": "glb/gpu-ventus.glb",
+    "cat": "gpu",
+    "license": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
+    "author": "darky.vip21 (https://sketchfab.com/darky.vip21)",
+    "title": "MSI GeForce RTX 5070 VENTUS 3X OC",
+    "source": "https://sketchfab.com/3d-models/msi-geforce-rtx-5070-ventus-3x-oc-732fd2bb31404894a220904526d13c03",
+    "flip": [
+      -1,
+      -1,
+      -1
+    ],
+    "identity": {
+      "manufacturer": "MSI",
+      "product": "GeForce RTX 5070 Ventus 3X OC",
+      "vendor": "nvidia",
+      "chip": "rtx5070"
+    },
+    "products": {
+      "rtx5070": "representative"
+    },
+    "priority": 2
   },
-  "products": {
-   "rtx5070": "representative"
+  "gpu-aero4090": {
+    "file": "glb/gpu-aero4090.glb",
+    "cat": "gpu",
+    "license": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
+    "author": "DavidWorks (https://sketchfab.com/DavidWorks)",
+    "title": "GIGABYTE AERO RTX 4090",
+    "source": "https://sketchfab.com/3d-models/gigabyte-aero-rtx-4090-dcb1a4a03f1d43c7946697d44baccf04",
+    "flip": [
+      -1,
+      1,
+      -1
+    ],
+    "identity": {
+      "manufacturer": "Gigabyte",
+      "product": "AERO RTX 4090",
+      "vendor": "nvidia",
+      "chip": "rtx4090"
+    },
+    "products": {
+      "rtx4090": "representative"
+    },
+    "priority": 1
   },
-  "priority": 1
- },
- "gpu-ventus": {
-  "file": "glb/gpu-ventus.glb",
-  "cat": "gpu",
-  "license": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
-  "author": "darky.vip21 (https://sketchfab.com/darky.vip21)",
-  "title": "MSI GeForce RTX 5070 VENTUS 3X OC",
-  "source": "https://sketchfab.com/3d-models/msi-geforce-rtx-5070-ventus-3x-oc-732fd2bb31404894a220904526d13c03",
-  "flip": [
-   -1,
-   -1,
-   -1
-  ],
-  "identity": {
-   "manufacturer": "MSI",
-   "product": "GeForce RTX 5070 Ventus 3X OC",
-   "vendor": "nvidia",
-   "chip": "rtx5070"
+  "mobo-z790": {
+    "file": "glb/mobo-z790.glb",
+    "cat": "mobo",
+    "license": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
+    "author": "cityon360 (https://sketchfab.com/cityon360)",
+    "title": "Motherboard MSI Z790 Low Poly",
+    "source": "https://sketchfab.com/3d-models/motherboard-msi-z790-low-poly-7ac2ed91599a4239aba96770a00874ce",
+    "plane": true,
+    "anchor": true,
+    "basis": [
+      [
+        0,
+        0,
+        1
+      ],
+      [
+        0,
+        1,
+        0
+      ],
+      [
+        -1,
+        0,
+        0
+      ]
+    ],
+    "identity": {
+      "manufacturer": "MSI",
+      "product": "Z790 board (low poly)",
+      "vendor": "intel",
+      "chipset": "Z790",
+      "form": "ATX"
+    },
+    "products": {
+      "z790-ddr5": "representative"
+    },
+    "priority": 1
   },
-  "products": {
-   "rtx5070": "representative"
+  "ram-corsair5": {
+    "file": "glb/ram-corsair5.glb",
+    "cat": "ram",
+    "license": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
+    "author": "PolyDavid (https://sketchfab.com/PolyDavid)",
+    "title": "Corsair VENGEANCE RGB DDR5 Ram - Low Poly",
+    "source": "https://sketchfab.com/3d-models/corsair-vengeance-rgb-ddr5-ram-low-poly-5352b17857ea4036ab61980c4c57f265",
+    "flip": [
+      -1,
+      1,
+      1
+    ],
+    "identity": {
+      "manufacturer": "Corsair",
+      "product": "Vengeance RGB DDR5",
+      "vendor": "neutral",
+      "ddr": "DDR5"
+    },
+    "products": {
+      "ddr5-16-5600": "representative",
+      "ddr5-32-6000": "representative"
+    },
+    "priority": 1
   },
-  "priority": 2
- },
- "gpu-aero4090": {
-  "file": "glb/gpu-aero4090.glb",
-  "cat": "gpu",
-  "license": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
-  "author": "DavidWorks (https://sketchfab.com/DavidWorks)",
-  "title": "GIGABYTE AERO RTX 4090",
-  "source": "https://sketchfab.com/3d-models/gigabyte-aero-rtx-4090-dcb1a4a03f1d43c7946697d44baccf04",
-  "flip": [
-   -1,
-   1,
-   -1
-  ],
-  "identity": {
-   "manufacturer": "Gigabyte",
-   "product": "AERO RTX 4090",
-   "vendor": "nvidia",
-   "chip": "rtx4090"
+  "ram-crucial4": {
+    "file": "glb/ram-crucial4.glb",
+    "cat": "ram",
+    "license": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
+    "author": "BlackCube (https://sketchfab.com/blackcube4)",
+    "title": "Crucial BALLISTIX 8GB DDR4 3600 RAM | Black",
+    "source": "https://sketchfab.com/3d-models/crucial-ballistix-8gb-ddr4-3600-ram-black-1fce4935471e46cab6ee57ba140c87f9",
+    "identity": {
+      "manufacturer": "Crucial",
+      "product": "Ballistix 8GB DDR4-3600",
+      "vendor": "neutral",
+      "ddr": "DDR4"
+    },
+    "products": {
+      "ddr4-16-3200": "representative"
+    },
+    "priority": 1
   },
-  "products": {
-   "rtx4090": "representative"
+  "ram-corsair4": {
+    "file": "glb/ram-corsair4.glb",
+    "cat": "ram",
+    "license": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
+    "author": "lime.ball.animations (https://sketchfab.com/lime.ball.animations.official)",
+    "title": "RAM Corsair Vengeance DDR4 RGB Pro",
+    "source": "https://sketchfab.com/3d-models/ram-corsair-vengeance-ddr4-rgb-pro-ee5c6e6b2e524d63a7043365e73a2420",
+    "flip": [
+      -1,
+      1,
+      1
+    ],
+    "identity": {
+      "manufacturer": "Corsair",
+      "product": "Vengeance RGB Pro DDR4",
+      "vendor": "neutral",
+      "ddr": "DDR4"
+    },
+    "products": {},
+    "priority": 0,
+    "note": "reserved, not mapped"
   },
-  "priority": 1
- },
- "mobo-z790": {
-  "file": "glb/mobo-z790.glb",
-  "cat": "mobo",
-  "license": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
-  "author": "cityon360 (https://sketchfab.com/cityon360)",
-  "title": "Motherboard MSI Z790 Low Poly",
-  "source": "https://sketchfab.com/3d-models/motherboard-msi-z790-low-poly-7ac2ed91599a4239aba96770a00874ce",
-  "plane": true,
-  "anchor": true,
-  "basis": [
-   [
-    0,
-    0,
-    1
-   ],
-   [
-    0,
-    1,
-    0
-   ],
-   [
-    -1,
-    0,
-    0
-   ]
-  ],
-  "identity": {
-   "manufacturer": "MSI",
-   "product": "Z790 board (low poly)",
-   "vendor": "intel",
-   "chipset": "Z790",
-   "form": "ATX"
+  "cpu-7900x": {
+    "file": "glb/cpu-7900x.glb",
+    "cat": "cpu",
+    "license": "CC-BY-4.0",
+    "author": "hoti28 (https://sketchfab.com/Hoti28)",
+    "title": "amd ryzen 9",
+    "source": "https://sketchfab.com/3d-models/amd-ryzen-9-fff4a783d9824800a912c3c7a79c1ac0",
+    "flip": [
+      1,
+      -1,
+      1
+    ],
+    "identity": {
+      "manufacturer": "AMD",
+      "product": "Ryzen 9 (generic title \"amd ryzen 9\")",
+      "vendor": "amd",
+      "socket": "AM5"
+    },
+    "products": {
+      "r9-7900x": "representative"
+    },
+    "priority": 1
   },
-  "products": {
-   "z790-ddr5": "representative"
+  "cpu-7800x3d": {
+    "file": "glb/cpu-7800x3d.glb",
+    "cat": "cpu",
+    "license": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
+    "author": "gioguarino12 (https://sketchfab.com/gioguarino12)",
+    "title": "AMD Ryzen 7 7800X3D",
+    "source": "https://sketchfab.com/3d-models/amd-ryzen-7-7800x3d-209c4aada00e4b1790d8d274bac98779",
+    "flip": [
+      -1,
+      -1,
+      1
+    ],
+    "identity": {
+      "manufacturer": "AMD",
+      "product": "Ryzen 7 7800X3D",
+      "vendor": "amd",
+      "socket": "AM5"
+    },
+    "products": {
+      "r7-7800x3d": "exact",
+      "r5-7600": "representative",
+      "r7-7700x": "representative"
+    },
+    "priority": 1,
+    "note": "r5-7600 / r7-7700x: same AM5 Zen4 package, no printed model text"
   },
-  "priority": 1
- },
- "ram-corsair5": {
-  "file": "glb/ram-corsair5.glb",
-  "cat": "ram",
-  "license": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
-  "author": "PolyDavid (https://sketchfab.com/PolyDavid)",
-  "title": "Corsair VENGEANCE RGB DDR5 Ram - Low Poly",
-  "source": "https://sketchfab.com/3d-models/corsair-vengeance-rgb-ddr5-ram-low-poly-5352b17857ea4036ab61980c4c57f265",
-  "flip": [
-   -1,
-   1,
-   1
-  ],
-  "identity": {
-   "manufacturer": "Corsair",
-   "product": "Vengeance RGB DDR5",
-   "vendor": "neutral",
-   "ddr": "DDR5"
+  "cpu-7950x3d": {
+    "file": "glb/cpu-7950x3d.glb",
+    "cat": "cpu",
+    "license": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
+    "author": "Anxxvnxn (https://sketchfab.com/Anxxvnxn)",
+    "title": "AMD Ryzen 9 7950X3D",
+    "source": "https://sketchfab.com/3d-models/amd-ryzentm-9-7950x3d-fb96f1d7c65347988b6d41159046ce3d",
+    "flip": [
+      -1,
+      -1,
+      1
+    ],
+    "identity": {
+      "manufacturer": "AMD",
+      "product": "Ryzen 9 7950X3D",
+      "vendor": "amd",
+      "socket": "AM5"
+    },
+    "products": {
+      "r9-7950x3d": "exact"
+    },
+    "priority": 1
   },
-  "products": {
-   "ddr5-16-5600": "representative",
-   "ddr5-32-6000": "representative"
+  "mobo-b550f": {
+    "file": "glb/mobo-b550f.glb",
+    "cat": "mobo",
+    "license": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
+    "author": "MUSHROOM_BUILDS (https://sketchfab.com/MUSHROOM_BUILDS)",
+    "title": "Asus Strix B-550-F Gaming Motherboard",
+    "source": "https://sketchfab.com/3d-models/asus-strix-b-550-f-gaming-motherboard-realistic-3eba5f45bed74fbeb2647de38047000f",
+    "plane": true,
+    "anchor": true,
+    "flip": [
+      -1,
+      -1,
+      1
+    ],
+    "identity": {
+      "manufacturer": "Asus",
+      "product": "ROG Strix B550-F Gaming",
+      "vendor": "amd",
+      "chipset": "B550",
+      "form": "ATX"
+    },
+    "products": {
+      "b550-atx": "representative",
+      "b550m": "representative"
+    },
+    "priority": 1,
+    "note": "b550m: ATX board scaled into an mATX box"
   },
-  "priority": 1
- },
- "ram-crucial4": {
-  "file": "glb/ram-crucial4.glb",
-  "cat": "ram",
-  "license": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
-  "author": "BlackCube (https://sketchfab.com/blackcube4)",
-  "title": "Crucial BALLISTIX 8GB DDR4 3600 RAM | Black",
-  "source": "https://sketchfab.com/3d-models/crucial-ballistix-8gb-ddr4-3600-ram-black-1fce4935471e46cab6ee57ba140c87f9",
-  "identity": {
-   "manufacturer": "Crucial",
-   "product": "Ballistix 8GB DDR4-3600",
-   "vendor": "neutral",
-   "ddr": "DDR4"
+  "mobo-x370": {
+    "file": "glb/mobo-x370.glb",
+    "cat": "mobo",
+    "license": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
+    "author": "MUSHROOM_BUILDS (https://sketchfab.com/MUSHROOM_BUILDS)",
+    "title": "Rog Strix X370-F Motherboard",
+    "source": "https://sketchfab.com/3d-models/rog-strix-x370-f-motherboard-56bd8923fdf341fd8d81b717055a61dd",
+    "plane": true,
+    "anchor": true,
+    "flip": [
+      -1,
+      1,
+      1
+    ],
+    "identity": {
+      "manufacturer": "Asus",
+      "product": "ROG Strix X370-F Gaming",
+      "vendor": "amd",
+      "chipset": "X370",
+      "form": "ATX"
+    },
+    "products": {
+      "x370-atx": "representative"
+    },
+    "priority": 1
   },
-  "products": {
-   "ddr4-16-3200": "representative"
+  "mobo-h510m": {
+    "file": "glb/mobo-h510m.glb",
+    "cat": "mobo",
+    "license": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
+    "author": "zhigulinsky (https://sketchfab.com/vladikzhil)",
+    "title": "ASUS Prime H510M-K",
+    "source": "https://sketchfab.com/3d-models/pc-motherboard-asus-prime-h510m-k-f9a6af88120f4a0f81cd4107ce533e3e",
+    "plane": true,
+    "anchor": true,
+    "flip": [
+      -1,
+      -1,
+      1
+    ],
+    "identity": {
+      "manufacturer": "Asus",
+      "product": "Prime H510M-K",
+      "vendor": "intel",
+      "chipset": "H510",
+      "form": "mATX"
+    },
+    "products": {
+      "h510m": "representative"
+    },
+    "priority": 1
   },
-  "priority": 1
- },
- "ram-corsair4": {
-  "file": "glb/ram-corsair4.glb",
-  "cat": "ram",
-  "license": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
-  "author": "lime.ball.animations (https://sketchfab.com/lime.ball.animations.official)",
-  "title": "RAM Corsair Vengeance DDR4 RGB Pro",
-  "source": "https://sketchfab.com/3d-models/ram-corsair-vengeance-ddr4-rgb-pro-ee5c6e6b2e524d63a7043365e73a2420",
-  "flip": [
-   -1,
-   1,
-   1
-  ],
-  "identity": {
-   "manufacturer": "Corsair",
-   "product": "Vengeance RGB Pro DDR4",
-   "vendor": "neutral",
-   "ddr": "DDR4"
+  "mobo-z170": {
+    "file": "glb/mobo-z170.glb",
+    "cat": "mobo",
+    "license": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
+    "author": "Lassi Kaukonen (https://sketchfab.com/thesidekick)",
+    "title": "Asus Z170-P Motherboard",
+    "source": "https://sketchfab.com/3d-models/asus-z170-p-motherboard-b998596cfc4945a0bc7b016005c39321",
+    "plane": true,
+    "anchor": true,
+    "flip": [
+      -1,
+      -1,
+      1
+    ],
+    "identity": {
+      "manufacturer": "Asus",
+      "product": "Z170-P",
+      "vendor": "intel",
+      "chipset": "Z170",
+      "form": "ATX"
+    },
+    "products": {
+      "z170-atx": "representative"
+    },
+    "priority": 1
   },
-  "products": {},
-  "priority": 0,
-  "note": "reserved, not mapped"
- },
- "cpu-7900x": {
-  "file": "glb/cpu-7900x.glb",
-  "cat": "cpu",
-  "license": "CC-BY-4.0",
-  "author": "hoti28 (https://sketchfab.com/Hoti28)",
-  "title": "amd ryzen 9",
-  "source": "https://sketchfab.com/3d-models/amd-ryzen-9-fff4a783d9824800a912c3c7a79c1ac0",
-  "flip": [
-   1,
-   -1,
-   1
-  ],
-  "identity": {
-   "manufacturer": "AMD",
-   "product": "Ryzen 9 (generic title \"amd ryzen 9\")",
-   "vendor": "amd",
-   "socket": "AM5"
+  "ram-aorus4": {
+    "file": "glb/ram-aorus4.glb",
+    "cat": "ram",
+    "license": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
+    "author": "Sterflycreator (https://sketchfab.com/poll1980v)",
+    "title": "RAM Gigabyte DDR4 16GB 3600Mhz AORUS RGB",
+    "source": "https://sketchfab.com/3d-models/ram-gigabyte-ddr4-16gb-2x8gb-3600mhz-aorus-rgb-ac4d42f988ef4226a7a276e447a19bd3",
+    "flip": [
+      -1,
+      1,
+      1
+    ],
+    "identity": {
+      "manufacturer": "Gigabyte",
+      "product": "AORUS RGB DDR4-3600",
+      "vendor": "neutral",
+      "ddr": "DDR4"
+    },
+    "products": {
+      "ddr4-32-3200": "representative"
+    },
+    "priority": 1
   },
-  "products": {
-   "r9-7900x": "representative"
+  "ram-tforce5": {
+    "file": "glb/ram-tforce5.glb",
+    "cat": "ram",
+    "license": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
+    "author": "PolyDavid (https://sketchfab.com/PolyDavid)",
+    "title": "DDR5 RAM - Teamgroup T-Force White",
+    "source": "https://sketchfab.com/3d-models/ddr5-ram-teamgroup-t-force-white-198540480d3241f6be95d7e57f53b90a",
+    "flip": [
+      -1,
+      1,
+      1
+    ],
+    "identity": {
+      "manufacturer": "TeamGroup",
+      "product": "T-Force DDR5 White",
+      "vendor": "neutral",
+      "ddr": "DDR5"
+    },
+    "products": {},
+    "priority": 0,
+    "note": "reserved, not mapped"
   },
-  "priority": 1
- },
- "cpu-7800x3d": {
-  "file": "glb/cpu-7800x3d.glb",
-  "cat": "cpu",
-  "license": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
-  "author": "gioguarino12 (https://sketchfab.com/gioguarino12)",
-  "title": "AMD Ryzen 7 7800X3D",
-  "source": "https://sketchfab.com/3d-models/amd-ryzen-7-7800x3d-209c4aada00e4b1790d8d274bac98779",
-  "flip": [
-   -1,
-   -1,
-   1
-  ],
-  "identity": {
-   "manufacturer": "AMD",
-   "product": "Ryzen 7 7800X3D",
-   "vendor": "amd",
-   "socket": "AM5"
+  "ram-generic": {
+    "file": "glb/ram-generic.glb",
+    "cat": "ram",
+    "license": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
+    "author": "foreverautumn97 (https://sketchfab.com/foreverautumn97)",
+    "title": "RAM",
+    "source": "https://sketchfab.com/3d-models/ram-fc241b31e4e747f7b5029beeb8a23173",
+    "identity": {
+      "manufacturer": "unknown",
+      "product": "Generic RAM",
+      "vendor": "neutral"
+    },
+    "products": {},
+    "priority": 0,
+    "note": "reserved, not mapped"
   },
-  "products": {
-   "r7-7800x3d": "exact",
-   "r5-7600": "representative",
-   "r7-7700x": "representative"
+  "mobo-x570": {
+    "file": "glb/mobo-x570.glb",
+    "cat": "mobo",
+    "license": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
+    "author": "Igor.Jop (https://sketchfab.com/Igor.Jop)",
+    "title": "X570 Prime motherboard [HQ PBR]",
+    "source": "https://sketchfab.com/3d-models/x570-prime-motherboard-hq-pbr-25b3659935774b1e9d73d8954be065d8",
+    "plane": true,
+    "anchor": true,
+    "flip": [
+      -1,
+      1,
+      1
+    ],
+    "identity": {
+      "manufacturer": "Asus",
+      "product": "Prime X570 (per model title)",
+      "vendor": "amd",
+      "chipset": "X570",
+      "form": "ATX"
+    },
+    "products": {
+      "x570-atx": "representative"
+    },
+    "priority": 1
   },
-  "priority": 1,
-  "note": "r5-7600 / r7-7700x: same AM5 Zen4 package, no printed model text"
- },
- "cpu-7950x3d": {
-  "file": "glb/cpu-7950x3d.glb",
-  "cat": "cpu",
-  "license": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
-  "author": "Anxxvnxn (https://sketchfab.com/Anxxvnxn)",
-  "title": "AMD Ryzen 9 7950X3D",
-  "source": "https://sketchfab.com/3d-models/amd-ryzentm-9-7950x3d-fb96f1d7c65347988b6d41159046ce3d",
-  "flip": [
-   -1,
-   -1,
-   1
-  ],
-  "identity": {
-   "manufacturer": "AMD",
-   "product": "Ryzen 9 7950X3D",
-   "vendor": "amd",
-   "socket": "AM5"
+  "case-meshify": {
+    "file": "glb/case-meshify.glb",
+    "cat": "case",
+    "license": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
+    "author": "MUSHROOM_BUILDS (https://sketchfab.com/MUSHROOM_BUILDS)",
+    "title": "Fractal Design. Meshify C - PC Case",
+    "source": "https://sketchfab.com/3d-models/fractal-design-meshify-c-pc-case-a46526af2ac84fa098edc3f01c012450",
+    "fit": true,
+    "basis": [
+      [
+        0,
+        0,
+        1
+      ],
+      [
+        0,
+        1,
+        0
+      ],
+      [
+        -1,
+        0,
+        0
+      ]
+    ],
+    "em": [
+      0.09,
+      0.09,
+      0.11
+    ],
+    "identity": {
+      "manufacturer": "Fractal Design",
+      "product": "Meshify C",
+      "vendor": "neutral"
+    },
+    "products": {
+      "case-meshify-c": "exact"
+    },
+    "priority": 1
   },
-  "products": {
-   "r9-7950x3d": "exact"
+  "aio-rad": {
+    "file": "glb/aio-rad.glb",
+    "cat": "cooler",
+    "title": "Corsair H150i Elite CPU Liquid Cooler (radiator)",
+    "basis": [
+      [
+        0,
+        -1,
+        0
+      ],
+      [
+        1,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        1
+      ]
+    ],
+    "license": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
+    "author": "MpPower™ (https://sketchfab.com/MG990)",
+    "source": "https://sketchfab.com/3d-models/corsair-h150i-elitie-cpu-liquid-cooler-faa8f55407404fd2870e35ab6a8f03bb",
+    "identity": {
+      "manufacturer": "Corsair",
+      "product": "H150i Elite (radiator)",
+      "vendor": "neutral"
+    },
+    "products": {
+      "cool-aio-360": "representative"
+    },
+    "priority": 1
   },
-  "priority": 1
- },
- "mobo-b550f": {
-  "file": "glb/mobo-b550f.glb",
-  "cat": "mobo",
-  "license": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
-  "author": "MUSHROOM_BUILDS (https://sketchfab.com/MUSHROOM_BUILDS)",
-  "title": "Asus Strix B-550-F Gaming Motherboard",
-  "source": "https://sketchfab.com/3d-models/asus-strix-b-550-f-gaming-motherboard-realistic-3eba5f45bed74fbeb2647de38047000f",
-  "plane": true,
-  "anchor": true,
-  "flip": [
-   -1,
-   -1,
-   1
-  ],
-  "identity": {
-   "manufacturer": "Asus",
-   "product": "ROG Strix B550-F Gaming",
-   "vendor": "amd",
-   "chipset": "B550",
-   "form": "ATX"
+  "aio-pump": {
+    "file": "glb/aio-pump.glb",
+    "cat": "coolerpump",
+    "title": "Corsair H150i Elite CPU Liquid Cooler (pump)",
+    "license": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
+    "author": "MpPower™ (https://sketchfab.com/MG990)",
+    "source": "https://sketchfab.com/3d-models/corsair-h150i-elitie-cpu-liquid-cooler-faa8f55407404fd2870e35ab6a8f03bb",
+    "basis": [
+      [
+        -1,
+        0,
+        0
+      ],
+      [
+        0,
+        1,
+        0
+      ],
+      [
+        0,
+        0,
+        -1
+      ]
+    ],
+    "identity": {
+      "manufacturer": "Corsair",
+      "product": "H150i Elite (pump)",
+      "vendor": "neutral"
+    },
+    "products": {
+      "cool-aio-360": "representative"
+    },
+    "priority": 1
   },
-  "products": {
-   "b550-atx": "representative",
-   "b550m": "representative"
-  },
-  "priority": 1,
-  "note": "b550m: ATX board scaled into an mATX box"
- },
- "mobo-x370": {
-  "file": "glb/mobo-x370.glb",
-  "cat": "mobo",
-  "license": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
-  "author": "MUSHROOM_BUILDS (https://sketchfab.com/MUSHROOM_BUILDS)",
-  "title": "Rog Strix X370-F Motherboard",
-  "source": "https://sketchfab.com/3d-models/rog-strix-x370-f-motherboard-56bd8923fdf341fd8d81b717055a61dd",
-  "plane": true,
-  "anchor": true,
-  "flip": [
-   -1,
-   1,
-   1
-  ],
-  "identity": {
-   "manufacturer": "Asus",
-   "product": "ROG Strix X370-F Gaming",
-   "vendor": "amd",
-   "chipset": "X370",
-   "form": "ATX"
-  },
-  "products": {
-   "x370-atx": "representative"
-  },
-  "priority": 1
- },
- "mobo-h510m": {
-  "file": "glb/mobo-h510m.glb",
-  "cat": "mobo",
-  "license": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
-  "author": "zhigulinsky (https://sketchfab.com/vladikzhil)",
-  "title": "ASUS Prime H510M-K",
-  "source": "https://sketchfab.com/3d-models/pc-motherboard-asus-prime-h510m-k-f9a6af88120f4a0f81cd4107ce533e3e",
-  "plane": true,
-  "anchor": true,
-  "flip": [
-   -1,
-   -1,
-   1
-  ],
-  "identity": {
-   "manufacturer": "Asus",
-   "product": "Prime H510M-K",
-   "vendor": "intel",
-   "chipset": "H510",
-   "form": "mATX"
-  },
-  "products": {
-   "h510m": "representative"
-  },
-  "priority": 1
- },
- "mobo-z170": {
-  "file": "glb/mobo-z170.glb",
-  "cat": "mobo",
-  "license": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
-  "author": "Lassi Kaukonen (https://sketchfab.com/thesidekick)",
-  "title": "Asus Z170-P Motherboard",
-  "source": "https://sketchfab.com/3d-models/asus-z170-p-motherboard-b998596cfc4945a0bc7b016005c39321",
-  "plane": true,
-  "anchor": true,
-  "flip": [
-   -1,
-   -1,
-   1
-  ],
-  "identity": {
-   "manufacturer": "Asus",
-   "product": "Z170-P",
-   "vendor": "intel",
-   "chipset": "Z170",
-   "form": "ATX"
-  },
-  "products": {
-   "z170-atx": "representative"
-  },
-  "priority": 1
- },
- "ram-aorus4": {
-  "file": "glb/ram-aorus4.glb",
-  "cat": "ram",
-  "license": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
-  "author": "Sterflycreator (https://sketchfab.com/poll1980v)",
-  "title": "RAM Gigabyte DDR4 16GB 3600Mhz AORUS RGB",
-  "source": "https://sketchfab.com/3d-models/ram-gigabyte-ddr4-16gb-2x8gb-3600mhz-aorus-rgb-ac4d42f988ef4226a7a276e447a19bd3",
-  "flip": [
-   -1,
-   1,
-   1
-  ],
-  "identity": {
-   "manufacturer": "Gigabyte",
-   "product": "AORUS RGB DDR4-3600",
-   "vendor": "neutral",
-   "ddr": "DDR4"
-  },
-  "products": {
-   "ddr4-32-3200": "representative"
-  },
-  "priority": 1
- },
- "ram-tforce5": {
-  "file": "glb/ram-tforce5.glb",
-  "cat": "ram",
-  "license": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
-  "author": "PolyDavid (https://sketchfab.com/PolyDavid)",
-  "title": "DDR5 RAM - Teamgroup T-Force White",
-  "source": "https://sketchfab.com/3d-models/ddr5-ram-teamgroup-t-force-white-198540480d3241f6be95d7e57f53b90a",
-  "flip": [
-   -1,
-   1,
-   1
-  ],
-  "identity": {
-   "manufacturer": "TeamGroup",
-   "product": "T-Force DDR5 White",
-   "vendor": "neutral",
-   "ddr": "DDR5"
-  },
-  "products": {},
-  "priority": 0,
-  "note": "reserved, not mapped"
- },
- "ram-generic": {
-  "file": "glb/ram-generic.glb",
-  "cat": "ram",
-  "license": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
-  "author": "foreverautumn97 (https://sketchfab.com/foreverautumn97)",
-  "title": "RAM",
-  "source": "https://sketchfab.com/3d-models/ram-fc241b31e4e747f7b5029beeb8a23173",
-  "identity": {
-   "manufacturer": "unknown",
-   "product": "Generic RAM",
-   "vendor": "neutral"
-  },
-  "products": {},
-  "priority": 0,
-  "note": "reserved, not mapped"
- },
- "mobo-x570": {
-  "file": "glb/mobo-x570.glb",
-  "cat": "mobo",
-  "license": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
-  "author": "Igor.Jop (https://sketchfab.com/Igor.Jop)",
-  "title": "X570 Prime motherboard [HQ PBR]",
-  "source": "https://sketchfab.com/3d-models/x570-prime-motherboard-hq-pbr-25b3659935774b1e9d73d8954be065d8",
-  "plane": true,
-  "anchor": true,
-  "flip": [
-   -1,
-   1,
-   1
-  ],
-  "identity": {
-   "manufacturer": "Asus",
-   "product": "Prime X570 (per model title)",
-   "vendor": "amd",
-   "chipset": "X570",
-   "form": "ATX"
-  },
-  "products": {
-   "x570-atx": "representative"
-  },
-  "priority": 1
- },
- "case-meshify": {
-  "file": "glb/case-meshify.glb",
-  "cat": "case",
-  "license": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
-  "author": "MUSHROOM_BUILDS (https://sketchfab.com/MUSHROOM_BUILDS)",
-  "title": "Fractal Design. Meshify C - PC Case",
-  "source": "https://sketchfab.com/3d-models/fractal-design-meshify-c-pc-case-a46526af2ac84fa098edc3f01c012450",
-  "fit": true,
-  "basis": [
-   [
-    0,
-    0,
-    1
-   ],
-   [
-    0,
-    1,
-    0
-   ],
-   [
-    -1,
-    0,
-    0
-   ]
-  ],
-  "em": [
-   0.09,
-   0.09,
-   0.11
-  ],
-  "identity": {
-   "manufacturer": "Fractal Design",
-   "product": "Meshify C",
-   "vendor": "neutral"
-  },
-  "products": {
-   "case-meshify-c": "exact"
-  },
-  "priority": 1
- },
- "aio-rad": {
-  "file": "glb/aio-rad.glb",
-  "cat": "cooler",
-  "title": "Corsair H150i Elite CPU Liquid Cooler (radiator)",
-  "basis": [
-   [
-    0,
-    -1,
-    0
-   ],
-   [
-    1,
-    0,
-    0
-   ],
-   [
-    0,
-    0,
-    1
-   ]
-  ],
-  "license": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
-  "author": "MpPower\u2122 (https://sketchfab.com/MG990)",
-  "source": "https://sketchfab.com/3d-models/corsair-h150i-elitie-cpu-liquid-cooler-faa8f55407404fd2870e35ab6a8f03bb",
-  "identity": {
-   "manufacturer": "Corsair",
-   "product": "H150i Elite (radiator)",
-   "vendor": "neutral"
-  },
-  "products": {
-   "cool-aio-360": "representative"
-  },
-  "priority": 1
- },
- "aio-pump": {
-  "file": "glb/aio-pump.glb",
-  "cat": "coolerpump",
-  "title": "Corsair H150i Elite CPU Liquid Cooler (pump)",
-  "license": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
-  "author": "MpPower\u2122 (https://sketchfab.com/MG990)",
-  "source": "https://sketchfab.com/3d-models/corsair-h150i-elitie-cpu-liquid-cooler-faa8f55407404fd2870e35ab6a8f03bb",
-  "basis": [
-   [
-    -1,
-    0,
-    0
-   ],
-   [
-    0,
-    1,
-    0
-   ],
-   [
-    0,
-    0,
-    -1
-   ]
-  ],
-  "identity": {
-   "manufacturer": "Corsair",
-   "product": "H150i Elite (pump)",
-   "vendor": "neutral"
-  },
-  "products": {
-   "cool-aio-360": "representative"
-  },
-  "priority": 1
- }
+  "case-midtower": {
+    "file": "glb/case-midtower.glb",
+    "cat": "case",
+    "license": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
+    "author": "Yolala1232 (https://sketchfab.com/Yolala1232)",
+    "title": "Custom Gaming PC (case shell only)",
+    "source": "https://sketchfab.com/3d-models/custom-gaming-pc-1a24273417534f69afa0f7c62b643ffc",
+    "fit": true,
+    "basis": [
+      [
+        1,
+        0,
+        0
+      ],
+      [
+        0,
+        1,
+        0
+      ],
+      [
+        0,
+        0,
+        1
+      ]
+    ],
+    "identity": {
+      "manufacturer": "Unknown",
+      "product": "Mid-tower ATX case with 3 front fans, tempered glass side",
+      "vendor": "neutral",
+      "form": "ATX mid-tower"
+    },
+    "products": {
+      "case-atx-mid": "representative"
+    },
+    "priority": 1,
+    "note": "brandless shell taken from a full-PC model; logo removed; interior parts, cables and top mesh dropped"
+  }
 }
