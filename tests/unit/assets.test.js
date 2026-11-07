@@ -9,7 +9,7 @@ const code = fs.readFileSync(path.join(__dirname, '../../src/render3d/assets.js'
 
 function glb(n) { const b = Buffer.alloc(n); b.writeUInt32LE(0x46546c67, 0); return b; }
 function load(baseURI, fetchImpl) {
-  const sb = { URL, AbortController, setTimeout, clearTimeout, DataView, Promise, Object, Error, fetch: fetchImpl, location: { href: baseURI }, document: { baseURI } };
+  const sb = { atob: (s) => Buffer.from(s, 'base64').toString('binary'), Uint8Array, URL, AbortController, setTimeout, clearTimeout, DataView, Promise, Object, Error, fetch: fetchImpl, location: { href: baseURI }, document: { baseURI } };
   sb.window = sb; vm.createContext(sb); vm.runInContext(code, sb); return sb.RigLabAssets;
 }
 const abortable = (data) => (url, o) => new Promise((resolve, reject) => {
@@ -51,4 +51,10 @@ test('a failed request is not cached: the next request fetches again', async () 
   let n = 0; const A = load('http://h/', async () => { n++; return n === 1 ? { ok: false, status: 500 } : { ok: true, arrayBuffer: async () => glb(40).buffer.slice(0, 40) }; });
   await assert.rejects(A.request('m', { url: 'a.glb', bytes: 40 }, 'v'));
   assert.equal((await A.request('m', { url: 'a.glb', bytes: 40 }, 'v')).byteLength, 40); assert.equal(n, 2);
+});
+
+test('preview build: embedded b64 entries are decoded without any network request', async () => {
+  let n = 0; const A = load('http://h/', async () => { n++; });
+  const buf = await A.request('m', { url: 'a.glb', bytes: 40, b64: glb(40).toString('base64') }, 'v');
+  assert.equal(n, 0); assert.equal(buf.byteLength, 40);
 });

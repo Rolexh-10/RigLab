@@ -21,7 +21,7 @@ npm run typecheck && npm run test:unit
 npm run build && node --import tsx --test tests/ui/*.test.js   # UI tests start their own HTTP server
 node scripts/perf/baseline.js http://localhost:8080/ 5          # load + lifecycle measurements
 ```
-`file://` no longer works for the 3D models (browsers block `fetch` there); the app still opens and shows generic placeholders. `dist/riglab.artifact.html` is the same fragment; publishing it as a Claude artifact needs the GLBs published next to it as supporting files (`assets/models/*`).
+`file://` no longer works for the 3D models (browsers block `fetch` there); the app still opens and shows generic placeholders. The Claude artifact viewer cannot serve `.glb` supporting files (checked: publish refused), so `npm run build:preview` writes a separate self-contained `dist/riglab.preview.html` (≈14.75 MB, models Base64-embedded) used only for the artifact. The normal build never embeds anything. Preview renders pixel-identically to the normal build (checked on 2 builds).
 
 ## Measurements (headless Chromium, software GL, local HTTP; times are NOT phone times)
 | | Before (embedded Base64) | After (external) |

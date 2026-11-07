@@ -5,6 +5,7 @@
   "description": "RigLab: Iraqi-first PC builder, compatibility checker and hardware tools (trial build, sample data)",
   "scripts": {
     "build": "node scripts/build.js",
+    "build:preview": "node scripts/build.js --preview",
     "typecheck": "tsc -p .",
     "test": "node --import tsx --test tests/unit/*.test.js tests/ui/*.test.js",
     "test:unit": "node --import tsx --test tests/unit/*.test.js",

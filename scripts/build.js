@@ -14,30 +14,37 @@ const safe = (s) => s.replace(/<\/script/gi, '<\\/script');
 // separate file under dist/assets/models/ and is fetched on demand. URLs are relative so they resolve under any base path.
 const crypto = require('crypto');
 const MODEL_DIR = 'assets/models';
-function models() {
+function models(embed) {
   const man = JSON.parse(rd('models/manifest.json')), out = {};
-  fs.rmSync(path.join(root, 'dist', 'assets'), { recursive: true, force: true });
-  fs.mkdirSync(path.join(root, 'dist', MODEL_DIR), { recursive: true });
+  if (!embed) { fs.rmSync(path.join(root, 'dist', 'assets'), { recursive: true, force: true }); fs.mkdirSync(path.join(root, 'dist', MODEL_DIR), { recursive: true }); }
   for (const k of Object.keys(man)) {
     const m = man[k], name = path.basename(String(m.file || ''));
     if (!/^[a-z0-9][a-z0-9._-]*\.glb$/i.test(name) || path.dirname(m.file) !== 'glb') throw new Error('manifest: unsafe or invalid model file for "' + k + '": ' + m.file);
     const buf = fs.readFileSync(path.join(root, 'models', m.file));
     if (buf.length < 20 || buf.readUInt32LE(0) !== 0x46546c67) throw new Error('manifest: not a GLB: ' + m.file);
-    fs.writeFileSync(path.join(root, 'dist', MODEL_DIR, name), buf);
+    if (!embed) fs.writeFileSync(path.join(root, 'dist', MODEL_DIR, name), buf);
     const hash = crypto.createHash('sha1').update(buf).digest('hex').slice(0, 10);
-    out[k] = Object.assign({}, m, { url: MODEL_DIR + '/' + name + '?v=' + hash, bytes: buf.length });
+    out[k] = Object.assign({}, m, { url: MODEL_DIR + '/' + name + '?v=' + hash, bytes: buf.length }, embed ? { b64: buf.toString('base64') } : {});
   }
   return 'window.RIGLAB_MODELS=' + JSON.stringify(out) + ';';
 }
 // Concatenates every file of a directory in name order (NN- prefixes define the order).
 const cat = (dir, ext) => fs.readdirSync(path.join(root, dir)).filter((f) => f.endsWith(ext)).sort().map((f) => rd(dir + '/' + f)).join('\n');
-const tpl = rd('src/index.template.html')
+const assemble = (embed) => rd('src/index.template.html')
   .replace('/*__CSS__*/', () => cat('src/styles', '.css'))
   .replace('/*__DATA__*/', () => '')
   .replace('/*__ENGINE__*/', () => safe(buildEngine()))
-  .replace('/*__APP__*/', () => safe(rd('src/vendor/particles.js') + '\n' + models() + '\n' + buildApp() + '\n' + rd('src/render3d/viewer3d.js') + '\n' + rd('src/render3d/identity.js') + '\n' + rd('src/render3d/assets.js') + '\n' + rd('src/render3d/glview.js') + '\n' + cat('src/ui', '.js')));
+  .replace('/*__APP__*/', () => safe(rd('src/vendor/particles.js') + '\n' + models(embed) + '\n' + buildApp() + '\n' + rd('src/render3d/viewer3d.js') + '\n' + rd('src/render3d/identity.js') + '\n' + rd('src/render3d/assets.js') + '\n' + rd('src/render3d/glview.js') + '\n' + cat('src/ui', '.js')));
 
 fs.mkdirSync(path.join(root, 'dist'), { recursive: true });
+// `node scripts/build.js --preview`: ONLY for hosts that cannot serve .glb files (the Claude artifact viewer). It re-embeds the models
+// as Base64 into a separate dist/riglab.preview.html; the normal build above never embeds anything.
+if (process.argv.includes('--preview')) {
+  fs.writeFileSync(path.join(root, 'dist/riglab.preview.html'), assemble(true));
+  console.log('built dist/riglab.preview.html (self-contained preview, models embedded)', (fs.statSync(path.join(root, 'dist/riglab.preview.html')).size / 1048576).toFixed(2) + ' MB');
+  process.exit(0);
+}
+const tpl = assemble(false);
 fs.writeFileSync(path.join(root, 'dist/riglab.artifact.html'), tpl);
 
 // The template puts markup after <style>; for the standalone file move it into <body>.

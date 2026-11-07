@@ -20,6 +20,9 @@
 
   // owner: any string identifying who wants the bytes (one viewer instance). Resolves with an ArrayBuffer.
   function request(id, cfg, owner) {
+    if (cfg.b64) { // self-contained preview build only (npm run build:preview); the normal build never has b64
+      try { var bin = root.atob(cfg.b64), u = new Uint8Array(bin.length); for (var i = 0; i < bin.length; i++) u[i] = bin.charCodeAt(i); stats.embedded = (stats.embedded || 0) + 1; return Promise.resolve(u.buffer); } catch (er) { return Promise.reject(er); }
+    }
     var e = inflight[id];
     if (!e) {
       e = inflight[id] = { owners: {}, n: 0, ctl: new AbortController(), timedOut: false };
