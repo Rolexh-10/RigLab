@@ -1,3 +1,5 @@
+> **Update (Task 01):** models are no longer embedded; see [3D-ASSETS.md](3D-ASSETS.md) for current numbers. The table below is the old single-file baseline and its page-size budget no longer applies.
+
 # Performance baseline (Phase 5, 2026-11-05)
 
 Measured in headless Chrome with software GL (SwiftShader) — load numbers are indicative, FPS is NOT representative of a phone GPU.

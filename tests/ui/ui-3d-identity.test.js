@@ -4,6 +4,7 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const path = require('path');
+const http = require('./helpers/http');
 const fs = require('fs');
 const { chromium } = (() => { for (const p of ['playwright', '/opt/npm-tools/node_modules/playwright']) { try { return require(p); } catch (e) { /* next */ } } throw new Error('playwright not found'); })();
 
@@ -12,12 +13,13 @@ test('3D identity: selection, swap, removal, reload, language, touch', async () 
   const browser = await chromium.launch({ executablePath: exe, args: ['--no-sandbox', '--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] });
   const ctx = await browser.newContext({ viewport: { width: 412, height: 860 }, hasTouch: true, reducedMotion: 'reduce' });
   const page = await ctx.newPage();
-  await page.route('**/*', (r) => (r.request().url().startsWith('file:') ? r.continue() : r.abort()));
-  await page.goto('file://' + path.join(__dirname, '../../dist/riglab.html#builder'));
+  const srv = await http.start();
+  await page.route('**/*', http.localOnly(srv.origin));
+  await page.goto(srv.url + '#builder');
   await page.waitForSelector('#app canvas');
-  if (!(await page.evaluate(() => !!(window.RigLabApp.state.v3 && window.RigLabApp.state.v3.gl)))) { await browser.close(); return; }
+  if (!(await page.evaluate(() => !!(window.RigLabApp.state.v3 && window.RigLabApp.state.v3.gl)))) { await browser.close(); await srv.close(); return; }
   const setBuild = (b) => page.evaluate((b) => { window.RigLabApp.state.build = b; window.RigLabApp.render(); }, b);
-  const ident = async () => { await page.waitForTimeout(600); return page.evaluate(() => ({ id: window.RigLabApp.state.v3.identity(), label: (document.getElementById('rig3d-id') || {}).textContent || '' })); };
+  const ident = async () => { await page.waitForFunction(() => window.RigLabApp.state.v3.identity().every((x) => x.status !== 'loading'), null, { timeout: 20000 }); await page.waitForTimeout(150); return page.evaluate(() => ({ id: window.RigLabApp.state.v3.identity(), label: (document.getElementById('rig3d-id') || {}).textContent || '' })); };
   const by = (r, k) => r.id.find((x) => x.key === k);
   const base = { cpu: 'r5-7600', mobo: 'b550m', ram: 'ddr5-16-5600', storage: 'nvme-1tb', psu: 'psu-650', case: 'case-meshify-c' };
 
@@ -52,5 +54,5 @@ test('3D identity: selection, swap, removal, reload, language, touch', async () 
   for (let i = 1; i <= 6; i++) await cdp.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: [{ x: box.x + i * 12, y: box.y }] });
   await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
   assert.ok(Math.abs((await page.evaluate(() => window.RigLabApp.state.v3.state.yaw)) - y0) > 0.2, 'touch rotation after swaps');
-  await browser.close();
+  await browser.close(); await srv.close();
 });

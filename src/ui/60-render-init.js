@@ -33,6 +33,7 @@
     $('bnav-in').innerHTML = bnavHtml(rt);
     updateBadge();
     var v = VIEWS[rt] || VIEWS[r];
+    if (rt !== 'builder' && S.v3 && S.v3.park) S.v3.park(); // leaving the Builder: stop drawing, free models after a grace period
     var RR = window.RigLabReact, ported = !!(RR && RR.has(rt));
     if (ported) RR.mount($('app'), rt);
     else { if (RR) RR.unmount(); $('app').innerHTML = v.html(); }

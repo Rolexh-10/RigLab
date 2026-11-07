@@ -24,12 +24,14 @@ jobs:
           PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: "1"
       - name: Typecheck and unit tests
         run: npm run typecheck && npm run test:unit
-      - name: Build single-file site
+      - name: Build site (HTML + external GLB assets)
         run: npm run build
       - name: Assemble site
         run: |
           mkdir _site
           cp dist/riglab.html _site/index.html
+          cp -r dist/assets _site/assets   # GLB models; URLs in the page are relative, so the /RigLab/ project path works
+          test "$(ls _site/assets/models/*.glb | wc -l)" -gt 0
           touch _site/.nojekyll
       - uses: actions/upload-pages-artifact@v3
         with:

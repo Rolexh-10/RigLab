@@ -37,9 +37,11 @@
   var KEY_AR = { gpu: 'كرت الشاشة', cpu: 'المعالج', mobo: 'اللوحة الأم', ram: 'الرام', case: 'الكيس', cooler: 'المبرد' }, KEY_EN = { gpu: 'GPU', cpu: 'CPU', mobo: 'Motherboard', ram: 'RAM', case: 'Case', cooler: 'Cooler' };
   function ident3d(gl) {
     var el = $('rig3d-id'); if (!el || !gl.identity) return;
-    var rows = gl.identity().filter(function (r) { return r.level !== 'exact'; });
-    if (!rows.length) { el.textContent = ''; return; }
-    el.innerHTML = '<b>' + L('تمثيل 3D', '3D representation') + '</b>: ' + rows.map(function (r) {
+    var all = gl.identity(), busy = all.filter(function (r) { return r.status === 'loading'; });
+    var rows = all.filter(function (r) { return r.status !== 'loading' && r.level !== 'exact'; });
+    var wait = busy.length ? '<span class="ld3d" role="status"><i class="spin3d" aria-hidden="true"></i>' + L('جاري تحميل نموذج 3D…', 'Loading 3D model…') + '</span>' : '';
+    if (!rows.length) { el.innerHTML = wait; return; }
+    el.innerHTML = wait + (wait ? ' ' : '') + '<b>' + L('تمثيل 3D', '3D representation') + '</b>: ' + rows.map(function (r) {
       var n = L(KEY_AR[r.key], KEY_EN[r.key]);
       return r.level === 'generic' ? n + ' — ' + L('شكل عام (بدون موديل)', 'Generic 3D representation') : n + ' — ' + L('موديل مشابه: ', 'look-alike model: ') + esc(r.actual);
     }).join(' · ');
@@ -48,9 +50,10 @@
   VIEWS.builder = {
     bind: function () {
       var cv = $('rig3d'); if (!cv || !window.RigLab3D) return; cv.dataset.gl = '1';
-      if (S.v3 && S.v3.destroy) { try { S.v3.destroy(); } catch (e) {} S.v3 = null; }
       var R3 = window.RigLab3D, parts = C.resolve(S.build), gl = null;
-      try { gl = R3.createGL && !/[?&]flat3d/.test(location.search) ? R3.createGL(cv) : null; if (gl) gl.setParts(parts); } catch (e) { gl = null; }
+      if (S.v3 && S.v3.destroy && !(R3.acquireGL && S.v3.canvas)) { try { S.v3.destroy(); } catch (e) {} S.v3 = null; }
+      // one persistent GL viewer: acquireGL moves its canvas into the freshly rendered placeholder (no new context per render)
+      try { gl = (R3.acquireGL || R3.createGL) && !/[?&]flat3d/.test(location.search) ? (R3.acquireGL || R3.createGL)(cv) : null; if (gl) { gl.onchange = function () { ident3d(gl); }; gl.setParts(parts); } } catch (e) { gl = null; }
       if (gl) { S.v3 = gl; ident3d(gl); return; }
       if (cv.dataset.gl) { var c2 = cv.cloneNode(false); c2.dataset.gl = ''; cv.parentNode.replaceChild(c2, cv); cv = c2; }
       try { S.v3 = R3.create(cv); S.v3.setParts(parts); } catch (e) { cv.style.display = 'none'; }

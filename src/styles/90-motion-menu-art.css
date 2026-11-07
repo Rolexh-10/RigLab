@@ -50,3 +50,9 @@
 .tag.t3d.no{color:var(--mut,#8a8f9c);border-color:var(--mut,#8a8f9c);font-weight:400;opacity:.8}
 
 .rig3d{background:radial-gradient(70% 70% at 50% 40%,#23262e,#0b0c10)!important;box-shadow:none!important}
+
+/* 3D asset loading indicator (lightweight, respects reduced motion) */
+.ld3d{display:inline-flex;align-items:center;gap:6px}
+.spin3d{width:10px;height:10px;border:2px solid var(--line2,#555);border-top-color:#ff2d4b;border-radius:50%;display:inline-block;animation:spin3d .8s linear infinite}
+@keyframes spin3d{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.spin3d{animation:none}}

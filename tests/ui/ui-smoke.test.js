@@ -5,6 +5,7 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const path = require('path');
+const http = require('./helpers/http');
 const fs = require('fs');
 
 function loadPlaywright() {
@@ -12,17 +13,18 @@ function loadPlaywright() {
   throw new Error('playwright not found: npm i -D playwright');
 }
 const { chromium } = loadPlaywright();
-const FILE = 'file://' + path.join(__dirname, '../../dist/riglab.html');
+let FILE, srv;
 const SHOTS = process.env.SHOTS_DIR;
 
 let browser;
 test.before(async () => {
+  srv = await http.start(); FILE = srv.url;
   const opts = { args: ['--no-sandbox'] };
   const exe = process.env.CHROME_PATH || (fs.existsSync('/usr/bin/google-chrome') ? '/usr/bin/google-chrome' : null);
   if (exe) opts.executablePath = exe;
   browser = await chromium.launch(opts);
 });
-test.after(async () => { if (browser) await browser.close(); });
+test.after(async () => { if (browser) await browser.close(); if (srv) await srv.close(); });
 
 async function open(hash, viewport) {
   const ctx = await browser.newContext({ viewport: viewport || { width: 390, height: 800 }, locale: 'ar-IQ' });
@@ -30,7 +32,7 @@ async function open(hash, viewport) {
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
   page.on('console', (m) => { if (m.type() === 'error' && !/Failed to load resource|net::ERR/.test(m.text())) errors.push(m.text()); });
-  await page.route('**/*', (r) => (r.request().url().startsWith('file:') ? r.continue() : r.abort()));
+  await page.route('**/*', (r) => (r.request().url().startsWith(srv.origin) ? r.continue() : r.abort()));
   await page.goto(FILE + (hash || ''));
   await page.waitForSelector('#app *');
   return { page, ctx, errors };
@@ -330,8 +332,9 @@ test('desktop width renders without horizontal scroll', async () => {
 test('WebGL viewer: real GLB models load and draw when WebGL2 exists; credits tab lists authors', async () => {
   const { page, ctx, errors } = await open('#builder', { width: 390, height: 900 });
   for (const [c, id] of [['case', 'case-matx'], ['mobo', 'b650m'], ['cpu', 'r5-7600'], ['gpu', 'rx7800xt']]) await pick(page, c, id);
+  if (await page.evaluate(() => !!(window.RigLabApp.state.v3 && window.RigLabApp.state.v3.models))) await page.waitForFunction(() => Object.values(window.RigLabApp.state.v3.models).every((m) => m.state !== 'loading'), null, { timeout: 20000 });
   const info = await page.evaluate(() => { const v = window.RigLabApp.state.v3; return v && v.models ? Object.values(v.models).map((m) => m.state) : null; });
-  if (info) assert.deepEqual([...new Set(info)], ['ready'], 'all embedded models parse');
+  if (info) assert.deepEqual([...new Set(info)], ['ready'], 'all fetched models parse');
   await page.goto(FILE.split('#')[0] + '#trust'); await page.click('[data-act="trust-tab"][data-v="credits"]');
   const t = await text(page, '#app'); assert.match(t, /CC BY 4\.0/); assert.match(t, /darky\.vip21/);
   assert.deepEqual(errors, []);

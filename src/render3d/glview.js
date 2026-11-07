@@ -59,7 +59,6 @@
   // ---------- GLB loading ----------
   var CT = { 5120: [Int8Array, 1], 5121: [Uint8Array, 1], 5122: [Int16Array, 2], 5123: [Uint16Array, 2], 5125: [Uint32Array, 4], 5126: [Float32Array, 4] };
   var NC = { SCALAR: 1, VEC2: 2, VEC3: 3, VEC4: 4, MAT4: 16 };
-  function b64(s) { var bin = atob(s), u = new Uint8Array(bin.length); for (var i = 0; i < bin.length; i++) u[i] = bin.charCodeAt(i); return u.buffer; }
   function parseGLB(buf) {
     var dv = new DataView(buf); if (dv.getUint32(0, true) !== 0x46546C67) throw new Error('not a GLB');
     var off = 12, json = null, bin = null;
@@ -72,7 +71,10 @@
   }
   function readAcc(g, i) {
     var a = g.j.accessors[i], bv = g.j.bufferViews[a.bufferView], ct = CT[a.componentType], n = NC[a.type], T = ct[0], bs = ct[1];
-    var base = (bv.byteOffset || 0) + (a.byteOffset || 0), stride = bv.byteStride || (n * bs), out = new T(a.count * n), dv = new DataView(g.bin);
+    var base = (bv.byteOffset || 0) + (a.byteOffset || 0), stride = bv.byteStride || (n * bs);
+    // tightly packed, aligned, non-normalized data is a zero-copy typed-array view (no per-element loop on the main thread)
+    if (!a.normalized && !a.sparse && stride === n * bs && base % bs === 0 && (a.componentType === 5126 || a.componentType === 5123 || a.componentType === 5125)) return new T(g.bin, base, a.count * n);
+    var out = new T(a.count * n), dv = new DataView(g.bin);
     var norm = a.normalized, mx = { 5120: 127, 5121: 255, 5122: 32767, 5123: 65535 }[a.componentType];
     for (var k = 0; k < a.count; k++) for (var c = 0; c < n; c++) {
       var p = base + k * stride + c * bs, v;
@@ -92,51 +94,83 @@
     return m;
   }
 
-  function buildModel(gl, buf) {
-    var g = parseGLB(buf), j = g.j, model = { prims: [], min: [1e9, 1e9, 1e9], max: [-1e9, -1e9, -1e9], tex: [], pending: 0, onready: null };
-    var texCache = {};
-    function texFor(ti) {
-      if (ti == null) return null; if (texCache[ti]) return texCache[ti];
-      var t = j.textures[ti], img = j.images[t.source], samp = (t.sampler != null && j.samplers) ? j.samplers[t.sampler] : {};
-      var tex = gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D, tex);
-      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array([200, 200, 200, 255]));
-      texCache[ti] = tex; model.pending++;
-      var bv = j.bufferViews[img.bufferView], bytes = new Uint8Array(g.bin, bv.byteOffset || 0, bv.byteLength);
-      createImageBitmap(new Blob([bytes], { type: img.mimeType || 'image/png' }), { premultiplyAlpha: 'none' }).then(function (bm) {
-        gl.bindTexture(gl.TEXTURE_2D, tex); gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
-        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, bm); gl.generateMipmap(gl.TEXTURE_2D);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, samp.wrapS || gl.REPEAT); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, samp.wrapT || gl.REPEAT);
-        var ext = gl.getExtension('EXT_texture_filter_anisotropic'); if (ext) gl.texParameterf(gl.TEXTURE_2D, ext.TEXTURE_MAX_ANISOTROPY_EXT, 4);
-        if (bm.close) bm.close(); model.pending--; if (!model.pending && model.onready) model.onready();
-      }, function () { model.pending--; });
-      return tex;
-    }
-    function visit(ni, parent) {
-      var n = j.nodes[ni], w = M.mul(parent, nodeMatrix(n));
-      if (n.mesh != null) j.meshes[n.mesh].primitives.forEach(function (pr) {
-        if ((pr.mode != null && pr.mode !== 4) || pr.attributes.POSITION == null) return;
+  // Every GL object a model owns is registered in model.res so disposeModel() can release all of it.
+  function disposeModel(gl, model, counters) {
+    if (!model || model.disposed) return; model.disposed = true;
+    try {
+      model.res.vaos.forEach(function (v) { gl.deleteVertexArray(v); });
+      model.res.buffers.forEach(function (b) { gl.deleteBuffer(b); });
+      model.res.textures.forEach(function (t) { gl.deleteTexture(t); });
+    } catch (e) {}
+    if (counters) { counters.vaos -= model.res.vaos.length; counters.buffers -= model.res.buffers.length; counters.textures -= model.res.textures.length; }
+    model.res = { vaos: [], buffers: [], textures: [] }; model.prims = [];
+  }
+  var SLICE_MS = 6;
+  function nextSlice(fn) { setTimeout(fn, 0); }
+  // Parses a GLB and uploads it to the GPU in time slices (<= ~6 ms of main-thread work per slice).
+  // alive() lets the caller cancel mid-way (teardown, context loss, model no longer wanted); partial GL objects are then released.
+  function buildModelAsync(gl, buf, alive, counters) {
+    return new Promise(function (resolve, reject) {
+      var g, j, model = { prims: [], min: [1e9, 1e9, 1e9], max: [-1e9, -1e9, -1e9], pending: 0, onready: null, disposed: false, res: { vaos: [], buffers: [], textures: [] } }, texCache = {}, jobs = [], at = 0;
+      function mkBuf() { var b = gl.createBuffer(); model.res.buffers.push(b); counters.buffers++; return b; }
+      function mkVao() { var v = gl.createVertexArray(); model.res.vaos.push(v); counters.vaos++; return v; }
+      function mkTex() { var t = gl.createTexture(); model.res.textures.push(t); counters.textures++; return t; }
+      function texFor(ti) {
+        if (ti == null) return null; if (texCache[ti]) return texCache[ti];
+        var t = j.textures[ti], img = j.images[t.source], samp = (t.sampler != null && j.samplers) ? j.samplers[t.sampler] : {};
+        var tex = mkTex(); gl.bindTexture(gl.TEXTURE_2D, tex);
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array([200, 200, 200, 255]));
+        texCache[ti] = tex; model.pending++;
+        var bv = j.bufferViews[img.bufferView], bytes = new Uint8Array(g.bin, bv.byteOffset || 0, bv.byteLength);
+        createImageBitmap(new Blob([bytes], { type: img.mimeType || 'image/png' }), { premultiplyAlpha: 'none' }).then(function (bm) {
+          if (model.disposed || !alive()) { if (bm.close) bm.close(); return; } // late decode after eviction/teardown: never touch deleted objects
+          gl.bindTexture(gl.TEXTURE_2D, tex); gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
+          gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, bm); gl.generateMipmap(gl.TEXTURE_2D);
+          gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+          gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, samp.wrapS || gl.REPEAT); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, samp.wrapT || gl.REPEAT);
+          var ext = gl.getExtension('EXT_texture_filter_anisotropic'); if (ext) gl.texParameterf(gl.TEXTURE_2D, ext.TEXTURE_MAX_ANISOTROPY_EXT, 4);
+          if (bm.close) bm.close(); model.pending--; if (!model.pending && model.onready) model.onready();
+        }, function () { model.pending--; });
+        return tex;
+      }
+      function collect(ni, parent) { // node walk only; accessor reads happen later, one primitive per step
+        var n = j.nodes[ni], w = M.mul(parent, nodeMatrix(n));
+        if (n.mesh != null) j.meshes[n.mesh].primitives.forEach(function (pr) { if ((pr.mode != null && pr.mode !== 4) || pr.attributes.POSITION == null) return; jobs.push({ pr: pr, w: w }); });
+        (n.children || []).forEach(function (c) { collect(c, w); });
+      }
+      function prim(job) {
+        var pr = job.pr, w = job.w;
         var pos = readAcc(g, pr.attributes.POSITION), idx = pr.indices != null ? readAcc(g, pr.indices) : null, nor, uv;
         if (pr.attributes.NORMAL != null) nor = readAcc(g, pr.attributes.NORMAL);
         else { nor = new Float32Array(pos.length); var cnt = idx ? idx.length : pos.length / 3; for (var t = 0; t < cnt; t += 3) { var i0 = idx ? idx[t] : t, i1 = idx ? idx[t + 1] : t + 1, i2 = idx ? idx[t + 2] : t + 2, ax = pos[i1 * 3] - pos[i0 * 3], ay = pos[i1 * 3 + 1] - pos[i0 * 3 + 1], az = pos[i1 * 3 + 2] - pos[i0 * 3 + 2], bx = pos[i2 * 3] - pos[i0 * 3], by = pos[i2 * 3 + 1] - pos[i0 * 3 + 1], bz = pos[i2 * 3 + 2] - pos[i0 * 3 + 2], nx = ay * bz - az * by, ny = az * bx - ax * bz, nz = ax * by - ay * bx; [i0, i1, i2].forEach(function (ii) { nor[ii * 3] += nx; nor[ii * 3 + 1] += ny; nor[ii * 3 + 2] += nz; }); } }
         uv = pr.attributes.TEXCOORD_0 != null ? readAcc(g, pr.attributes.TEXCOORD_0) : new Float32Array(pos.length / 3 * 2);
-        var vao = gl.createVertexArray(); gl.bindVertexArray(vao);
-        [[pos, 0, 3], [nor, 1, 3], [uv, 2, 2]].forEach(function (a) { var b = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, b); gl.bufferData(gl.ARRAY_BUFFER, a[0], gl.STATIC_DRAW); gl.enableVertexAttribArray(a[1]); gl.vertexAttribPointer(a[1], a[2], gl.FLOAT, false, 0, 0); });
+        var vao = mkVao(); gl.bindVertexArray(vao);
+        [[pos, 0, 3], [nor, 1, 3], [uv, 2, 2]].forEach(function (a) { var b = mkBuf(); gl.bindBuffer(gl.ARRAY_BUFFER, b); gl.bufferData(gl.ARRAY_BUFFER, a[0], gl.STATIC_DRAW); gl.enableVertexAttribArray(a[1]); gl.vertexAttribPointer(a[1], a[2], gl.FLOAT, false, 0, 0); });
         var type = 0, count = pos.length / 3;
-        if (idx) { var ib = gl.createBuffer(), arr = idx instanceof Uint8Array ? new Uint16Array(idx) : idx; type = arr instanceof Uint32Array ? gl.UNSIGNED_INT : gl.UNSIGNED_SHORT; gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ib); gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, arr, gl.STATIC_DRAW); count = arr.length; }
+        if (idx) { var ib = mkBuf(), arr = idx instanceof Uint8Array ? new Uint16Array(idx) : idx; type = arr instanceof Uint32Array ? gl.UNSIGNED_INT : gl.UNSIGNED_SHORT; gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ib); gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, arr, gl.STATIC_DRAW); count = arr.length; }
         gl.bindVertexArray(null);
         var mt = pr.material != null ? j.materials[pr.material] : {}, pbr = mt.pbrMetallicRoughness || {}, es = (mt.extensions && mt.extensions.KHR_materials_emissive_strength) ? mt.extensions.KHR_materials_emissive_strength.emissiveStrength : 1;
         var em = (mt.emissiveFactor || [0, 0, 0]).map(function (v) { return v * es; });
         var mat = { base: pbr.baseColorFactor || [1, 1, 1, 1], tex: pbr.baseColorTexture ? texFor(pbr.baseColorTexture.index) : null, emTex: mt.emissiveTexture ? texFor(mt.emissiveTexture.index) : null, em: em, mode: mt.alphaMode || 'OPAQUE', cut: mt.alphaCutoff != null ? mt.alphaCutoff : 0.5, dbl: !!mt.doubleSided };
         model.prims.push({ vao: vao, count: count, type: type, node: w, mat: mat });
-        for (var vi = 0; vi < pos.length; vi += 3) { var p = mpt(w, [pos[vi], pos[vi + 1], pos[vi + 2]]); for (var kk = 0; kk < 3; kk++) { if (p[kk] < model.min[kk]) model.min[kk] = p[kk]; if (p[kk] > model.max[kk]) model.max[kk] = p[kk]; } } // real vertex bounds (accessor min/max can be wrong)
-      });
-      (n.children || []).forEach(function (c) { visit(c, w); });
-    }
-    function mpt(m, p) { return M.pt(m, p); }
-    (j.scenes[j.scene || 0].nodes).forEach(function (ni) { visit(ni, M.id()); });
-    return model;
+        for (var vi = 0; vi < pos.length; vi += 3) { var p = M.pt(w, [pos[vi], pos[vi + 1], pos[vi + 2]]); for (var kk = 0; kk < 3; kk++) { if (p[kk] < model.min[kk]) model.min[kk] = p[kk]; if (p[kk] > model.max[kk]) model.max[kk] = p[kk]; } } // real vertex bounds (accessor min/max can be wrong)
+      }
+      function step() {
+        try {
+          if (!alive()) { disposeModel(gl, model, counters); return reject(fail('cancelled', 'AbortError')); }
+          var t0 = performance.now();
+          while (at < jobs.length) { prim(jobs[at++]); if (performance.now() - t0 > SLICE_MS && at < jobs.length) return nextSlice(step); }
+          g = j = null; resolve(model); // CPU copies of the file are not retained past this point
+        } catch (er) { disposeModel(gl, model, counters); reject(er); }
+      }
+      try {
+        g = parseGLB(buf); j = g.j;
+        (j.scenes[j.scene || 0].nodes).forEach(function (ni) { collect(ni, M.id()); });
+      } catch (er) { return reject(er); }
+      nextSlice(step);
+    });
   }
+  function fail(msg, name) { var e = new Error(msg); if (name) e.name = name; return e; }
 
   // ---------- unit geometry ----------
   function cubeData() {
@@ -162,8 +196,22 @@
   function create(canvas) {
     var gl = canvas.getContext('webgl2', { antialias: true, alpha: true, premultipliedAlpha: true });
     if (!gl) return null;
-    var P, LP;
-    try { P = prog(gl, VS, FS); LP = prog(gl, LVS, LFS); } catch (e) { return null; }
+    var P, LP, U, cube, fan, edges, quad, grid, white, cd = cubeData(), fd = fanData();
+    function initGL() { // everything that lives on the GL context; re-run after webglcontextrestored
+      P = prog(gl, VS, FS); LP = prog(gl, LVS, LFS); U = P.u;
+      cube = vao(cd); fan = vao(fd);
+      edges = (function () { // 12 cube edges as lines
+        var c = [[-.5, -.5, -.5], [.5, -.5, -.5], [.5, .5, -.5], [-.5, .5, -.5], [-.5, -.5, .5], [.5, -.5, .5], [.5, .5, .5], [-.5, .5, .5]], e = [0, 1, 1, 2, 2, 3, 3, 0, 4, 5, 5, 6, 6, 7, 7, 4, 0, 4, 1, 5, 2, 6, 3, 7], a = [];
+        e.forEach(function (i) { a.push(c[i][0], c[i][1], c[i][2]); });
+        var v = gl.createVertexArray(); gl.bindVertexArray(v); var b = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, b); gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(a), gl.STATIC_DRAW); gl.enableVertexAttribArray(0); gl.vertexAttribPointer(0, 3, gl.FLOAT, false, 0, 0); gl.bindVertexArray(null); return v;
+      })();
+      quad = vao({ p: new Float32Array([-1, 0, -1, 1, 0, -1, 1, 0, 1, -1, 0, -1, 1, 0, 1, -1, 0, 1]), n: new Float32Array([0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0]), u: new Float32Array([0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 0, 1]) });
+      grid = (function () {
+        var a = []; for (var k = -480; k <= 480; k += 60) { a.push(k, 0, -480, k, 0, 480, -480, 0, k, 480, 0, k); }
+        var v = gl.createVertexArray(); gl.bindVertexArray(v); var b = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, b); gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(a), gl.STATIC_DRAW); gl.enableVertexAttribArray(0); gl.vertexAttribPointer(0, 3, gl.FLOAT, false, 0, 0); gl.bindVertexArray(null); return { v: v, n: a.length / 3 };
+      })();
+      white = gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D, white); gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array([255, 255, 255, 255]));
+    }
     var reduce = false; try { reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) {}
     var st = V3.view; st.items = []; st.drag = null; st.raf = 0;
     function vao(d) {
@@ -171,47 +219,96 @@
       [[d.p, 0, 3], [d.n, 1, 3], [d.u, 2, 2]].forEach(function (a) { var b = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, b); gl.bufferData(gl.ARRAY_BUFFER, a[0], gl.STATIC_DRAW); gl.enableVertexAttribArray(a[1]); gl.vertexAttribPointer(a[1], a[2], gl.FLOAT, false, 0, 0); });
       gl.bindVertexArray(null); return v;
     }
-    var cd = cubeData(), cube = vao(cd), fd = fanData(), fan = vao(fd);
-    var edges = (function () { // 12 cube edges as lines
-      var c = [[-.5, -.5, -.5], [.5, -.5, -.5], [.5, .5, -.5], [-.5, .5, -.5], [-.5, -.5, .5], [.5, -.5, .5], [.5, .5, .5], [-.5, .5, .5]], e = [0, 1, 1, 2, 2, 3, 3, 0, 4, 5, 5, 6, 6, 7, 7, 4, 0, 4, 1, 5, 2, 6, 3, 7], a = [];
-      e.forEach(function (i) { a.push(c[i][0], c[i][1], c[i][2]); });
-      var v = gl.createVertexArray(); gl.bindVertexArray(v); var b = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, b); gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(a), gl.STATIC_DRAW); gl.enableVertexAttribArray(0); gl.vertexAttribPointer(0, 3, gl.FLOAT, false, 0, 0); gl.bindVertexArray(null); return v;
-    })();
-    var quad = vao({ p: new Float32Array([-1, 0, -1, 1, 0, -1, 1, 0, 1, -1, 0, -1, 1, 0, 1, -1, 0, 1]), n: new Float32Array([0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0]), u: new Float32Array([0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 0, 1]) });
-    var grid = (function () {
-      var a = []; for (var k = -480; k <= 480; k += 60) { a.push(k, 0, -480, k, 0, 480, -480, 0, k, 480, 0, k); }
-      var v = gl.createVertexArray(); gl.bindVertexArray(v); var b = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, b); gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(a), gl.STATIC_DRAW); gl.enableVertexAttribArray(0); gl.vertexAttribPointer(0, 3, gl.FLOAT, false, 0, 0); gl.bindVertexArray(null); return { v: v, n: a.length / 3 };
-    })();
-    var white = gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D, white); gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array([255, 255, 255, 255]));
+    try { initGL(); } catch (e) { return null; }
 
-    // models: loaded lazily from window.RIGLAB_MODELS (base64 GLB) by catalog category
-    var models = {};
-    function ensure(id) { // decode a variant the first time it is needed
-      var reg = window.RIGLAB_MODELS || {}, e = models[id];
-      if (e) return e; if (!reg[id]) return null;
-      e = models[id] = { state: 'loading', cfg: reg[id], cat: reg[id].cat };
-      try { var m = buildModel(gl, b64(reg[id].b64)); m.onready = function () { invalidate(); }; e.m = m; e.state = 'ready'; } catch (er) { e.state = 'error'; e.err = String(er && er.message); }
+    // ---- model cache: GLBs are fetched on demand (window.RIGLAB_MODELS carries metadata + url only) ----
+    var CFG = V3.glConfig = V3.glConfig || { maxUnused: 2, parkTtlMs: 45000, errorRetryMs: 30000 };
+    var owner = 'v' + (++V3.viewerSeq || (V3.viewerSeq = 1));
+    var models = {};              // id -> { state: 'loading' | 'ready' | 'error', cfg, cat, m, used, err, retryAt }
+    var wanted = {};              // ids the current scene needs (+ forced diagnostics ids); everything else is evictable
+    var counters = { buffers: 0, vaos: 0, textures: 0 }, cpuBytes = 0, tick = 0;
+    var dead = false, lost = false, epoch = 0, parked = false, parkTimer = 0, lastParts = null, notifyQueued = false;
+    var api = null;
+    function reg() { return window.RIGLAB_MODELS || {}; }
+    function notify() { // identity/loading state changed; coalesced so the UI updates once per burst
+      if (notifyQueued) return; notifyQueued = true;
+      Promise.resolve().then(function () { notifyQueued = false; if (!dead && api && api.onchange) { try { api.onchange(); } catch (e) {} } });
+    }
+    function drop(id, release) { // forget a model entry; frees GL objects if it was uploaded
+      var e = models[id]; if (!e) return;
+      delete models[id];
+      if (e.m) disposeModel(gl, e.m, counters);
+      if (release) RigLabAssets.release(id, owner);
+    }
+    function trim() { // evict ready models nobody wants, keeping at most CFG.maxUnused of the most recently used
+      var idle = Object.keys(models).filter(function (id) { return !wanted[id] && models[id].state === 'ready'; }).sort(function (a, b) { return models[b].used - models[a].used; });
+      idle.slice(CFG.maxUnused).forEach(function (id) { drop(id, false); });
+    }
+    function setWanted(ids) {
+      wanted = {}; ids.forEach(function (id) { wanted[id] = 1; });
+      Object.keys(models).forEach(function (id) { if (!wanted[id] && models[id].state === 'loading') drop(id, true); }); // abort fetches nobody needs any more
+      trim();
+    }
+    function ensure(id) { // starts loading a variant once; returns its entry (state 'loading' | 'ready' | 'error')
+      var r = reg(), e = models[id];
+      if (e) { e.used = ++tick; if (e.state === 'error' && Date.now() > e.retryAt && wanted[id]) { drop(id, false); e = null; } else return e; }
+      if (!r[id] || dead || lost) return null;
+      e = models[id] = { state: 'loading', cfg: r[id], cat: r[id].cat, used: ++tick };
+      var myEpoch = epoch;
+      function stale() { return dead || lost || epoch !== myEpoch || models[id] !== e; }
+      RigLabAssets.request(id, r[id], owner).then(function (buf) {
+        if (stale()) return;
+        if (!wanted[id]) { drop(id, false); return; } // the scene moved on while the bytes were in flight: do not upload
+        cpuBytes += buf.byteLength;
+        return buildModelAsync(gl, buf, function () { return !stale() && !!wanted[id]; }, counters).then(function (m) {
+          cpuBytes -= buf.byteLength;
+          if (stale()) { disposeModel(gl, m, counters); return; }
+          m.onready = function () { invalidate(); };
+          e.m = m; e.state = 'ready'; notify(); invalidate(); trim();
+        }, function (er) { cpuBytes -= buf.byteLength; throw er; });
+      }).catch(function (er) {
+        if (stale()) return;
+        if (er && er.name === 'AbortError') { drop(id, false); notify(); return; }
+        e.state = 'error'; e.err = String(er && er.message); e.retryAt = Date.now() + CFG.errorRetryMs; notify(); invalidate();
+      });
+      notify();
       return e;
     }
     var forced = {};
-    function pickEntry(key, part) {
-      var reg = window.RIGLAB_MODELS || {}, id = forced[key] || null; // forced = diagnostics/tests only
-      if (!id) { var r = window.RigLabIdentity && window.RigLabIdentity.resolve(reg, key, part); id = r ? r.id : null; }
-      var e = id && ensure(id); return e && e.state === 'ready' ? e : null;
+    // the model ids the draw loop will ask for, per scene item (mirrors the picks in draw())
+    function keysFor(it) {
+      if (it.ghost || !it.part) return [];
+      if (it.frame) return it.key === 'case' ? [['case', it.part]] : [];
+      var k = it.key === 'storage' ? 'ssd' : it.key, out = [[k, it.part]];
+      if (it.key === 'cooler' && it.boxes.length === 2) out.push(['coolerpump', it.part]);
+      return out;
     }
-    // what the viewer is really showing for every part: exact | representative | generic (neutral placeholder)
+    function demand(items) {
+      var ids = [], I = window.RigLabIdentity;
+      items.forEach(function (it) { keysFor(it).forEach(function (kp) { var r = I && I.resolve(reg(), kp[0], kp[1]); if (r) ids.push(r.id); }); });
+      Object.keys(forced).forEach(function (c) { if (forced[c]) ids.push(forced[c]); });
+      setWanted(ids); ids.forEach(function (id) { ensure(id); });
+    }
+    function pickEntry(key, part) {
+      var id = forced[key] || null; // forced = diagnostics/tests only
+      if (!id) { var r = window.RigLabIdentity && window.RigLabIdentity.resolve(reg(), key, part); id = r ? r.id : null; }
+      var e = id && wanted[id] ? ensure(id) : null; // ids outside the demanded set are never fetched from the draw loop
+      return e && e.state === 'ready' ? e : null;
+    }
+    // what the viewer is really showing for every part. level = what the mapping promises (exact | representative | generic);
+    // status says whether that model is on screen yet: ready | loading (placeholder shown for now) | error (placeholder kept) | none
     var IDENT_KEYS = ['gpu', 'cpu', 'mobo', 'ram', 'case', 'cooler'];
     function identity() {
-      var reg = window.RIGLAB_MODELS || {}, out = [];
+      var out = [];
       (st.items || []).forEach(function (it) {
         if (it.ghost || it.frame && it.key !== 'case' || !it.part || IDENT_KEYS.indexOf(it.key) < 0) return;
-        var r = window.RigLabIdentity && window.RigLabIdentity.resolve(reg, it.key, it.part), ok = r && (ensure(r.id) || {}).state === 'ready';
-        out.push({ key: it.key, id: it.part.id, level: ok ? r.level : 'generic', model: ok ? r.id : null, actual: ok ? (r.identity.manufacturer + ' ' + r.identity.product) : '', note: ok ? r.note : '' });
+        var r = window.RigLabIdentity && window.RigLabIdentity.resolve(reg(), it.key, it.part), e = r && models[r.id];
+        var status = !r ? 'none' : e ? e.state : 'loading', ok = status === 'ready';
+        out.push({ key: it.key, id: it.part.id, level: !r ? 'generic' : status === 'error' ? 'generic' : r.level, status: status, model: ok ? r.id : null, actual: ok ? (r.identity.manufacturer + ' ' + r.identity.product) : '', note: ok ? r.note : '', error: status === 'error' ? e.err : '' });
       });
       return out;
     }
 
-    var U = P.u;
     function setMat(m, o) {
       o = o || {};
       gl.uniform4fv(U.uBase, m.base); gl.uniform1f(U.uHasTex, m.tex ? 1 : 0); gl.uniform1f(U.uHasEm, m.emTex ? 1 : 0); gl.uniform3fv(U.uEm, o.em || m.em);
@@ -274,13 +371,14 @@
     function setParts(parts) {
       var now = performance.now(), items = V3.layout(parts);
       items.forEach(function (it) { it.k = it.key + ':' + it.id + (it.ghost ? ':g' : ''); if (!st.born[it.k]) st.born[it.k] = now; it.part = parts[it.key] || null; });
-      st.items = items; draw(now);
+      st.items = items; lastParts = parts; demand(items); notify(); if (!lost) draw(now);
     }
     function size() {
       var r = canvas.getBoundingClientRect(), dpr = Math.min(1.5, window.devicePixelRatio || 1), w = Math.max(10, Math.round(r.width * dpr)), h = Math.max(10, Math.round(r.height * dpr));
       if (canvas.width !== w || canvas.height !== h) { canvas.width = w; canvas.height = h; } return { w: w, h: h };
     }
     function draw(now) {
+      if (lost || dead) return false;
       var s = size(); gl.viewport(0, 0, s.w, s.h); gl.clearColor(0, 0, 0, 0); gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
       gl.enable(gl.DEPTH_TEST); gl.depthFunc(gl.LEQUAL);
       gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
@@ -364,10 +462,9 @@
     }
     // on-demand rendering: draw only when something changed (or while an animation runs)
     var pend = false, last = 0;
-    var dead = false;
-    function invalidate() { if (dead || pend || !canvas.isConnected) return; pend = true; st.raf = requestAnimationFrame(frame); }
+    function invalidate() { if (dead || lost || parked || pend || !canvas.isConnected) return; pend = true; st.raf = requestAnimationFrame(frame); }
     function frame(now) {
-      pend = false; st.raf = 0; if (!canvas.isConnected) return;
+      pend = false; st.raf = 0; if (!canvas.isConnected || lost || dead) return;
       if (document.hidden) return;
       if (now - last < 30) { invalidate(); return; } last = now;
       if (st.auto && !st.drag) st.yaw += 0.01;
@@ -392,23 +489,74 @@
     canvas.addEventListener('dblclick', function () { st.zoom = 1; st.yaw = -1.1; st.pitch = 0.18; invalidate(); });
     canvas.addEventListener('wheel', function (e) { e.preventDefault(); zset(st.zoom * (e.deltaY < 0 ? 1.1 : 0.9)); }, { passive: false });
     function start() { invalidate(); }
-    return {
-      gl: true, setParts: function (p) { setParts(p); start(); }, state: st, models: models, draw: function () { draw(performance.now()); },
+    // ---- context loss / restoration ----
+    canvas.addEventListener('webglcontextlost', function (e) {
+      e.preventDefault(); // lets the browser restore the context later
+      lost = true; epoch++; if (st.raf) cancelAnimationFrame(st.raf); st.raf = 0; pend = false;
+      RigLabAssets.releaseAll(owner);
+      Object.keys(models).forEach(function (id) { delete models[id]; }); // GL objects are already gone with the context; nothing to delete
+      counters.buffers = counters.vaos = counters.textures = 0; cpuBytes = 0; notify();
+    });
+    canvas.addEventListener('webglcontextrestored', function () {
+      if (dead) return;
+      try { initGL(); } catch (er) { dead = true; notify(); return; }
+      lost = false; if (lastParts && !parked) { setParts(lastParts); invalidate(); } notify();
+    });
+    // ---- park / resume: leaving the Builder keeps the context but stops rendering, then frees models after a grace period ----
+    function releaseAll() { RigLabAssets.releaseAll(owner); Object.keys(models).forEach(function (id) { drop(id, false); }); wanted = {}; cpuBytes = 0; }
+    function park() {
+      if (dead || parked) return; parked = true; if (st.raf) cancelAnimationFrame(st.raf); st.raf = 0; pend = false;
+      setWanted([]); clearTimeout(parkTimer); parkTimer = setTimeout(function () { if (parked && !dead) releaseAll(); }, CFG.parkTtlMs);
+    }
+    function resume(parts) {
+      if (dead) return; clearTimeout(parkTimer); parked = false; ptrs = {}; pinch0 = 0; st.drag = null; // a gesture cut short by a re-render must not leave stale pointers
+      if (parts) setParts(parts); else if (lastParts) setParts(lastParts); invalidate();
+    }
+    api = {
+      gl: true, canvas: canvas, setParts: function (p) { if (parked) resume(); setParts(p); start(); }, state: st, models: models, draw: function () { draw(performance.now()); },
+      park: park, resume: resume, onchange: null,
+      lost: function () { return lost; }, dead: function () { return dead; }, parked: function () { return parked; },
+      // GPU/CPU bookkeeping for tests and diagnostics: live model GL objects, models by state, CPU bytes still held for parsing
+      resources: function () {
+        var by = { ready: 0, loading: 0, error: 0 }; Object.keys(models).forEach(function (id) { by[models[id].state]++; });
+        return { models: by, buffers: counters.buffers, vaos: counters.vaos, textures: counters.textures, cpuBytes: cpuBytes, wanted: Object.keys(wanted).length, fetches: RigLabAssets.pending() };
+      },
       rotate: function (d) { st.yaw += d; st.auto = false; invalidate(); }, zoomBy: function (f) { zset(st.zoom * f); },
       toggleAuto: function () { st.auto = !st.auto; invalidate(); return st.auto; },
-      force: function (cat, id) { forced[cat] = id; invalidate(); }, identity: identity,
-      // release the GL context: every builder re-render makes a new canvas, and unreleased contexts pile up GPU memory (phones then stall)
-      destroy: function () { dead = true; if (st.raf) cancelAnimationFrame(st.raf); st.raf = 0; try { var x = gl.getExtension('WEBGL_lose_context'); if (x) x.loseContext(); } catch (e) {} },
+      force: function (cat, id) { forced[cat] = id; if (lastParts) demand(st.items); else { wanted[id] = 1; ensure(id); } invalidate(); }, identity: identity,
+      // full teardown: abort fetches, free every model, release the GL context; late completions are ignored (dead / epoch checks)
+      destroy: function () {
+        if (dead) return; clearTimeout(parkTimer); RigLabAssets.releaseAll(owner); Object.keys(models).forEach(function (id) { drop(id, false); });
+        dead = true; epoch++; wanted = {}; cpuBytes = 0; if (st.raf) cancelAnimationFrame(st.raf); st.raf = 0;
+        try { var x = gl.getExtension('WEBGL_lose_context'); if (x) x.loseContext(); } catch (e) {}
+      },
       // diagnostics: the linear part (3 columns = images of model axes) and its determinant (< 0 means the model is drawn mirrored)
       orient: function (id, box) {
-        var e = ensure(id); if (!e || e.state !== 'ready') return null;
+        var e = models[id]; if (!e || e.state !== 'ready') return null;
         var R = e.cfg.basis ? M.basis(e.cfg.basis) : autoBasis(e.m, box), F = e.cfg.flip ? M.mul(M.S(e.cfg.flip[0], e.cfg.flip[1], e.cfg.flip[2]), R) : R;
         var c = [0, 1, 2].map(function (i) { return [F[i * 4], F[i * 4 + 1], F[i * 4 + 2]]; });
         var det = c[0][0] * (c[1][1] * c[2][2] - c[1][2] * c[2][1]) - c[0][1] * (c[1][0] * c[2][2] - c[1][2] * c[2][0]) + c[0][2] * (c[1][0] * c[2][1] - c[1][1] * c[2][0]);
         return { det: Math.round(det), cols: c.map(function (v) { return v.map(Math.round); }) };
       }
     };
+    return api;
   }
   V3.createGL = create;
+  // The builder re-renders its DOM often. The canvas (and its single WebGL context) is created once and moved into each new
+  // placeholder instead of being rebuilt, so contexts, shaders and loaded models survive part changes.
+  var shared = null;
+  V3.acquireGL = function (placeholder) {
+    if (shared && !shared.viewer.dead()) {
+      var cv = shared.canvas;
+      if (placeholder && placeholder !== cv && placeholder.parentNode) {
+        var lab = placeholder.getAttribute('aria-label'); if (lab) cv.setAttribute('aria-label', lab);
+        placeholder.parentNode.replaceChild(cv, placeholder);
+      }
+      return shared.viewer;
+    }
+    shared = null;
+    var v = create(placeholder); if (v) shared = { canvas: placeholder, viewer: v };
+    return v;
+  };
   V3.M = M;
 })();

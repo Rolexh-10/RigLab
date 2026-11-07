@@ -5,6 +5,7 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const path = require('path');
+const http = require('./helpers/http');
 const fs = require('fs');
 
 function loadPlaywright() {
@@ -12,17 +13,18 @@ function loadPlaywright() {
   throw new Error('playwright not found: npm i -D playwright');
 }
 const { chromium } = loadPlaywright();
-const FILE = 'file://' + path.join(__dirname, '../../dist/riglab.html');
+let FILE, srv;
 const SHOTS = process.env.SHOTS_DIR;
 
 let browser;
 test.before(async () => {
+  srv = await http.start(); FILE = srv.url;
   const opts = { args: ['--no-sandbox'] };
   const exe = process.env.CHROME_PATH || (fs.existsSync('/usr/bin/google-chrome') ? '/usr/bin/google-chrome' : null);
   if (exe) opts.executablePath = exe;
   browser = await chromium.launch(opts);
 });
-test.after(async () => { if (browser) await browser.close(); });
+test.after(async () => { if (browser) await browser.close(); if (srv) await srv.close(); });
 
 async function open(hash, viewport) {
   const ctx = await browser.newContext({ viewport: viewport || { width: 390, height: 800 }, locale: 'ar-IQ' });
@@ -30,7 +32,7 @@ async function open(hash, viewport) {
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
   page.on('console', (m) => { if (m.type() === 'error' && !/Failed to load resource|net::ERR/.test(m.text())) errors.push(m.text()); });
-  await page.route('**/*', (r) => (r.request().url().startsWith('file:') ? r.continue() : r.abort()));
+  await page.route('**/*', (r) => (r.request().url().startsWith(srv.origin) ? r.continue() : r.abort()));
   await page.goto(FILE + (hash || ''));
   await page.waitForSelector('#app *');
   return { page, ctx, errors };
